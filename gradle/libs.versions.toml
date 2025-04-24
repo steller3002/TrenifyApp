@@ -11,8 +11,11 @@ composeBom = "2024.04.01"
 roomVersion = "2.7.1"
 kspVersion = "2.0.0-1.0.22"
 hiltVersion = "2.51.1"
+coreSplashscreen = "1.0.1"
 
 [libraries]
+androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
+
 room = { group = "androidx.room", name = "room-runtime", version.ref = "roomVersion" }
 room-annotation-processor = { group = "androidx.room", name = "room-compiler", version.ref = "roomVersion" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomVersion" }

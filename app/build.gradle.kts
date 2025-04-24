@@ -42,6 +42,8 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.core.splashscreen)
+
     implementation(libs.room)
     ksp(libs.room.annotation.processor)
     implementation(libs.room.ktx)
