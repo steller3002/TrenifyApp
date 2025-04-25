@@ -42,6 +42,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.navigation)
     implementation(libs.androidx.core.splashscreen)
 
     implementation(libs.room)

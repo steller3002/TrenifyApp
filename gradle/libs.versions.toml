@@ -11,9 +11,11 @@ composeBom = "2024.04.01"
 roomVersion = "2.7.1"
 kspVersion = "2.0.0-1.0.22"
 hiltVersion = "2.51.1"
+nav_version = "2.7.6"
 coreSplashscreen = "1.0.1"
 
 [libraries]
+navigation = {group = "androidx.navigation", name = "navigation-compose", version.ref = "nav_version"}
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 
 room = { group = "androidx.room", name = "room-runtime", version.ref = "roomVersion" }

@@ -4,7 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.trenifyapp.data.AppDb
-import com.example.trenifyapp.data.entities.UserEntity
+import com.example.trenifyapp.data.entities.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -13,7 +13,8 @@ import javax.inject.Inject
 class UsersViewModel @Inject constructor(
     val appDb: AppDb
 ) : ViewModel() {
-    val usersList = mutableStateOf(emptyList<UserEntity>())
+    val selectedUser = mutableStateOf<User?>(null)
+    val usersList = mutableStateOf(emptyList<User>())
 
     fun loadUsers() {
         viewModelScope.launch {
@@ -21,5 +22,9 @@ class UsersViewModel @Inject constructor(
                 usersList.value = users
             }
         }
+    }
+
+    fun selectUser(user: User) {
+        selectedUser.value = user
     }
 }
