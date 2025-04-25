@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class UsersViewModel @Inject constructor(
+class AccountSelectionViewModel @Inject constructor(
     val appDb: AppDb
 ) : ViewModel() {
     val selectedUser = mutableStateOf<User?>(null)
