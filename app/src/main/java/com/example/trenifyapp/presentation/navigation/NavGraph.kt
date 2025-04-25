@@ -4,22 +4,31 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.trenifyapp.presentation.screens.AccountSelectionScreen
+import com.example.trenifyapp.presentation.screens.MainScreenContent
+import com.example.trenifyapp.presentation.screens.SignUpScreen
 
 @Composable
 fun NavGraph(
     navHostController: NavHostController
 ) {
-    NavHost(navController = navHostController, startDestination = "Journal"){
-        composable("Journal"){
-            Journal()
+    NavHost(
+        navController = navHostController,
+        startDestination = "accountSelection" // Изменяем стартовый экран
+    ) {
+        // Экран выбора аккаунта
+        composable("accountSelection") {
+            AccountSelectionScreen(navController = navHostController)
         }
 
-        composable("Workout"){
-            Workout()
+        // Экран регистрации
+        composable("signUp") {
+            SignUpScreen(navController = navHostController)
         }
 
-        composable("Account"){
-            Account()
+        // Основной экран с нижней навигацией
+        composable("main") {
+            MainScreenContent()
         }
     }
 }

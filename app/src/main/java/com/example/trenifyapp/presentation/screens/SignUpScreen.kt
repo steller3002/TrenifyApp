@@ -5,6 +5,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,7 +25,6 @@ fun SignUpScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Заголовок "Trenify"
         Text(
             text = "Trenify",
             fontSize = 32.sp,
@@ -33,7 +33,6 @@ fun SignUpScreen(
             modifier = Modifier.padding(bottom = 32.dp)
         )
 
-        // Подзаголовок "Создание аккаунта"
         Text(
             text = "Создание аккаунта",
             fontSize = 24.sp,
@@ -41,7 +40,6 @@ fun SignUpScreen(
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        // Поле ввода имени пользователя
         OutlinedTextField(
             value = username,
             onValueChange = { username = it },
@@ -52,12 +50,17 @@ fun SignUpScreen(
                 .padding(bottom = 24.dp)
         )
 
-        // Кнопка "Продолжить"
         Button(
             onClick = {
                 navController.navigate("accountSelection")
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Orange,
+                contentColor = Color.White
+            )
         ) {
             Text("Продолжить")
         }
