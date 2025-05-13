@@ -3,6 +3,8 @@ package com.example.trenifyapp.data
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.example.trenifyapp.data.dao.ExerciseDao
+import com.example.trenifyapp.data.dao.MuscleGroupDao
+import com.example.trenifyapp.data.dao.SelectedExerciseDao
 import com.example.trenifyapp.data.dao.UserDao
 import com.example.trenifyapp.data.dao.WorkoutPlanDao
 import com.example.trenifyapp.data.entities.Exercise
@@ -29,4 +31,6 @@ abstract class AppDb : RoomDatabase() {
     abstract val userDao: UserDao
     abstract val workoutPlanDao: WorkoutPlanDao
     abstract val exerciseDao: ExerciseDao
+    abstract val muscleGroupDao: MuscleGroupDao
+    abstract val selectedExerciseDao: SelectedExerciseDao
 }

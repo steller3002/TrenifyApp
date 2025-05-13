@@ -5,14 +5,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.trenifyapp.data.AppDb
 import com.example.trenifyapp.data.entities.Exercise
-import com.example.trenifyapp.data.entities.ExerciseWithMuscles
 import com.example.trenifyapp.data.entities.MuscleGroup
+import com.example.trenifyapp.data.entities.SelectedExercise
 import com.example.trenifyapp.data.entities.User
 import com.example.trenifyapp.data.entities.WorkoutPlan
+import com.example.trenifyapp.data.relations.MuscleGroupWithExercises
 import com.example.trenifyapp.domain.enums.Gender
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -32,6 +34,7 @@ class SignUpViewModel @Inject constructor(
     private val INVALID_WORKOUT_ID_MESSAGE = "Выбран некорректный план тренировок"
 
     val genderVariants = listOf(Gender.Male, Gender.Female)
+    val exercises = mutableListOf<Exercise>()
 
     init {
         loadWorkoutPlans()
@@ -44,8 +47,11 @@ class SignUpViewModel @Inject constructor(
     private val _workoutPlans = MutableStateFlow<List<WorkoutPlan>>(emptyList())
     val workoutPlans = _workoutPlans.asStateFlow()
 
-    private val _exercises = MutableStateFlow<MutableMap<MuscleGroup, Exercise>>(mutableMapOf())
-    val exercises = _exercises.asStateFlow()
+    private val _muscleGroupWithExercisesMap = MutableStateFlow<MutableMap<String, List<Exercise>>>(mutableMapOf())
+    val muscleGroupWithExercisesMap = _muscleGroupWithExercisesMap.asStateFlow()
+
+    private val _selectedExercises = MutableStateFlow<MutableList<SelectedExercise>>(mutableListOf())
+    val selectedExercises = _selectedExercises.asStateFlow()
 
     val fieldsErrorState = mutableStateOf(FieldErrorStates())
 
@@ -82,12 +88,22 @@ class SignUpViewModel @Inject constructor(
 
     fun loadExercises() {
         viewModelScope.launch {
-            var exercisesWithMuscles = listOf<ExerciseWithMuscles>()
-            _appDb.exerciseDao.getAllWithMuscles().collect { list ->
-                exercisesWithMuscles = list
+            var muscleGroupsWithExercises = _appDb.muscleGroupDao.getAllWithExercises().first()
+            val localMap = mutableMapOf<String, List<Exercise>>()
+
+            muscleGroupsWithExercises.forEach { groupWithExercise ->
+                localMap[groupWithExercise.muscleGroup.name] = groupWithExercise.exercises
             }
 
+            _muscleGroupWithExercisesMap.value = localMap
+        }
+    }
 
+    suspend fun addExercises() {
+        val exercisesFromDb = _appDb.exerciseDao.getAll().first()
+
+        selectedExerciseIds.value.forEach { id ->
+            exercises.add(exercisesFromDb.find { it.exerciseId == id }!!)
         }
     }
 
@@ -149,6 +165,10 @@ class SignUpViewModel @Inject constructor(
 
         _signUpState.value = SignUpState.Error(INVALID_FIELDS_DATA_MESSAGE)
         return false
+    }
+
+    fun addSelectedExercises(selectedExercise: SelectedExercise) {
+        _selectedExercises.value.add(selectedExercise)
     }
 
     fun createAccount() {

@@ -9,6 +9,7 @@ import com.example.trenifyapp.presentation.screens.AccountSelectionScreen
 import com.example.trenifyapp.presentation.screens.InitialUserDataScreen
 import com.example.trenifyapp.presentation.screens.InitialWorkoutPlansScreen
 import com.example.trenifyapp.presentation.screens.InitialExercisesScreen
+import com.example.trenifyapp.presentation.screens.InitialSettingUpExercisesScreen
 import com.example.trenifyapp.presentation.screens.UserProfileScreen
 import com.example.trenifyapp.presentation.viewmodels.AccountSelectionViewModel
 import com.example.trenifyapp.presentation.viewmodels.SignUpViewModel
@@ -55,12 +56,12 @@ fun NavGraph(
             InitialWorkoutPlansScreen(
                 viewModel = viewModel,
                 navigateToWorkoutStatsScreen = {
-                    navHostController.navigate("initialWorkoutStats")
+                    navHostController.navigate("initialExercisesScreen")
                 }
             )
         }
 
-        composable("initialWorkoutStats") { backStackEntry ->
+        composable("initialExercisesScreen") { backStackEntry ->
             val viewModel: SignUpViewModel =
                 if (navHostController.previousBackStackEntry != null)
                     hiltViewModel(
@@ -68,6 +69,21 @@ fun NavGraph(
                     )
                 else hiltViewModel()
             InitialExercisesScreen(
+                viewModel = viewModel,
+                navigateToSettingUpExercisesScreen = {
+                    navHostController.navigate("initialSettingUpExercisesScreen")
+                }
+            )
+        }
+
+        composable("initialSettingUpExercisesScreen") { backStackEntry ->
+            val viewModel: SignUpViewModel =
+                if (navHostController.previousBackStackEntry != null)
+                    hiltViewModel(
+                        navHostController.previousBackStackEntry!!
+                    )
+                else hiltViewModel()
+            InitialSettingUpExercisesScreen (
                 viewModel = viewModel,
                 navigateToAccountsScreen = {
                     navHostController.navigate("accountSelection")

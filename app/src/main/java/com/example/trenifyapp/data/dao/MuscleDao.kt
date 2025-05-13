@@ -2,6 +2,7 @@ package com.example.trenifyapp.data.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import com.example.trenifyapp.data.entities.Muscle
 import kotlinx.coroutines.flow.Flow
 
