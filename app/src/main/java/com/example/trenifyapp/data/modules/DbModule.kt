@@ -20,6 +20,7 @@ object DbModule {
             app,
             AppDb::class.java,
             "trenify.db"
-        ).createFromAsset("database/trenify.db").build()
+        ).createFromAsset("database/trenify.db")
+            .build()
     }
 }

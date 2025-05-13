@@ -6,11 +6,9 @@ import com.example.trenifyapp.data.entities.Muscle
 import com.example.trenifyapp.data.entities.MuscleGroup
 
 data class MuscleGroupWithMuscles(
-    @Embedded
-    val muscleGroup: MuscleGroup,
+    @Embedded val muscleGroup: MuscleGroup,
     @Relation(
         parentColumn = "id",
-        entityColumn = "muscleGroupId"
-    )
+        entityColumn = "muscleGroupId")
     val muscles: List<Muscle>
 )

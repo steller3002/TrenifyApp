@@ -13,10 +13,6 @@ data class User(
     var weight: Float,
     val gender: Gender,
 
-    // Special for female:
-    @ColumnInfo(name = "current_day_of_menstruation")
-    var currentDayOfMenstruation: Int? = null,
-
     @ColumnInfo(name = "workout_program_id")
     var workoutProgramId: Int,
 )

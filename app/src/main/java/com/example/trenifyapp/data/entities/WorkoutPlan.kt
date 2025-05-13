@@ -4,13 +4,12 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "muscles")
-data class Muscle(
+@Entity(tableName = "workout_plans")
+data class WorkoutPlan(
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "muscle_id")
-    val muscleId: Int? = null,
+    val id: Int? = null,
     val name: String,
-
-    @ColumnInfo(name = "muscle_group_id")
-    val muscleGroupId: Int
+    val description: String,
+    @ColumnInfo(name = "days_per_cycle")
+    val daysPerCycle: Int,
 )
