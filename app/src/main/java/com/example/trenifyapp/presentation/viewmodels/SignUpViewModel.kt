@@ -34,7 +34,7 @@ class SignUpViewModel @Inject constructor(
     private val INVALID_WORKOUT_ID_MESSAGE = "Выбран некорректный план тренировок"
 
     val genderVariants = listOf(Gender.Male, Gender.Female)
-    val exercises = mutableListOf<Exercise>()
+    val allExercises = _appDb.exerciseDao.getAll()
 
     init {
         loadWorkoutPlans()
@@ -50,8 +50,8 @@ class SignUpViewModel @Inject constructor(
     private val _muscleGroupWithExercisesMap = MutableStateFlow<MutableMap<String, List<Exercise>>>(mutableMapOf())
     val muscleGroupWithExercisesMap = _muscleGroupWithExercisesMap.asStateFlow()
 
-    private val _selectedExercises = MutableStateFlow<MutableList<SelectedExercise>>(mutableListOf())
-    val selectedExercises = _selectedExercises.asStateFlow()
+    private val _selectedExercises = MutableStateFlow<MutableList<Exercise>>(mutableListOf())
+    val exercises = _selectedExercises.asStateFlow()
 
     val fieldsErrorState = mutableStateOf(FieldErrorStates())
 
@@ -99,12 +99,7 @@ class SignUpViewModel @Inject constructor(
         }
     }
 
-    suspend fun addExercises() {
-        val exercisesFromDb = _appDb.exerciseDao.getAll().first()
-
-        selectedExerciseIds.value.forEach { id ->
-            exercises.add(exercisesFromDb.find { it.exerciseId == id }!!)
-        }
+    suspend fun selectExercisesByIds() {
     }
 
     // Validate functions
@@ -168,7 +163,6 @@ class SignUpViewModel @Inject constructor(
     }
 
     fun addSelectedExercises(selectedExercise: SelectedExercise) {
-        _selectedExercises.value.add(selectedExercise)
     }
 
     fun createAccount() {
