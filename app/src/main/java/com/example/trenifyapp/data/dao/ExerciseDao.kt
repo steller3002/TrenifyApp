@@ -5,6 +5,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.example.trenifyapp.data.entities.Exercise
 import com.example.trenifyapp.data.entities.ExerciseWithMuscles
+import com.example.trenifyapp.data.relations.ExerciseWithSelectedExercises
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -18,4 +19,7 @@ interface ExerciseDao {
     @Transaction
     @Query("SELECT * FROM exercises")
     fun getAllWithMuscles(): Flow<List<ExerciseWithMuscles>>
+
+    @Query("SELECT name FROM exercises WHERE exercise_id = :id")
+    suspend fun getNameById(id: Int): String
 }

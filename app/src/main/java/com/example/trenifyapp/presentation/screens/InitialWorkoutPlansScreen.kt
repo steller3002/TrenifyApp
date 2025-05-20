@@ -26,7 +26,8 @@ fun InitialWorkoutPlansScreen(
     viewModel: SignUpViewModel
 ) {
     val focusManager = LocalFocusManager.current
-    val workoutPlans by viewModel.workoutPlans.collectAsState()
+    val state by viewModel.state.collectAsState()
+    val workoutPlans = state.workoutPlans
 
     Column(
         modifier = Modifier
@@ -68,7 +69,7 @@ fun InitialWorkoutPlansScreen(
             this.items(workoutPlans) { plan ->
                 WorkoutPlanItem(
                     plan = plan,
-                    isSelected = viewModel.workoutId.value == plan.id,
+                    isSelected = state.workoutId == plan.id,
                     onSelect = { viewModel.changeWorkoutId(plan.id!!) },
                 )
             }
@@ -80,7 +81,7 @@ fun InitialWorkoutPlansScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
-            enabled = viewModel.workoutId.value != null,
+            enabled = state.workoutId != null,
             colors = ButtonDefaults.buttonColors(
                 containerColor = Orange,
                 contentColor = Color.White,

@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.trenifyapp.presentation.viewmodels.Constansts
 import com.example.trenifyapp.presentation.viewmodels.SignUpState
 import com.example.trenifyapp.presentation.viewmodels.SignUpViewModel
 import com.example.trenifyapp.ui.theme.Orange
@@ -25,6 +26,7 @@ fun InitialUserDataScreen(
     viewModel: SignUpViewModel
 ) {
     val focusManager = LocalFocusManager.current
+    val state by viewModel.state.collectAsState()
 
     Column(
         modifier = Modifier
@@ -52,49 +54,49 @@ fun InitialUserDataScreen(
         )
 
         OutlinedTextField(
-            value = viewModel.username.value,
+            value = state.username,
             onValueChange = { viewModel.updateUsername(it) },
             label = { Text("Имя пользователя") },
-            isError = viewModel.fieldsErrorState.value.usernameError != "",
+            isError = state.fieldsErrorState.username != "",
             supportingText = {
-                if (viewModel.fieldsErrorState.value.usernameError != "") {
-                    Text(viewModel.fieldsErrorState.value.usernameError)
+                if (state.fieldsErrorState.username != "") {
+                    Text(state.fieldsErrorState.username)
                 }
             }
         )
 
         OutlinedTextField(
-            value = viewModel.age.value,
+            value = state.age,
             onValueChange = { viewModel.updateAge(it) },
             label = { Text("Возраст") },
-            isError = viewModel.fieldsErrorState.value.ageError != "",
+            isError = state.fieldsErrorState.age != "",
             supportingText = {
-                if (viewModel.fieldsErrorState.value.ageError != "") {
-                    Text(viewModel.fieldsErrorState.value.ageError)
+                if (state.fieldsErrorState.age != "") {
+                    Text(state.fieldsErrorState.age)
                 }
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
 
         OutlinedTextField(
-            value = viewModel.weight.value,
+            value = state.weight,
             onValueChange = { viewModel.updateWeight(it) },
             label = { Text("Вес") },
-            isError = viewModel.fieldsErrorState.value.weightError != "",
+            isError = state.fieldsErrorState.weight != "",
             supportingText = {
-                if (viewModel.fieldsErrorState.value.weightError != "") {
-                    Text(viewModel.fieldsErrorState.value.weightError)
+                if (state.fieldsErrorState.weight != "") {
+                    Text(state.fieldsErrorState.weight)
                 }
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
 
         Row {
-            viewModel.genderVariants.forEach { gender ->
+            Constansts.genderVariants.forEach { gender ->
                 Button(
                     onClick = { viewModel.changeGender(gender) },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (viewModel.gender.value == gender) Orange else Color.LightGray
+                        containerColor = if (state.gender == gender) Orange else Color.LightGray
                     ),
                     shape = RoundedCornerShape(50)
                 ) {

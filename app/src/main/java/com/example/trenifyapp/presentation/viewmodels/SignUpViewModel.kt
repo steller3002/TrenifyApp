@@ -1,20 +1,19 @@
 package com.example.trenifyapp.presentation.viewmodels
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.trenifyapp.data.AppDb
 import com.example.trenifyapp.data.entities.Exercise
-import com.example.trenifyapp.data.entities.MuscleGroup
 import com.example.trenifyapp.data.entities.SelectedExercise
 import com.example.trenifyapp.data.entities.User
 import com.example.trenifyapp.data.entities.WorkoutPlan
-import com.example.trenifyapp.data.relations.MuscleGroupWithExercises
 import com.example.trenifyapp.domain.enums.Gender
+import com.example.trenifyapp.presentation.dataclasses.SelectedExerciseWithName
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,191 +21,269 @@ import javax.inject.Inject
 class SignUpViewModel @Inject constructor(
     private val _appDb: AppDb
 ) : ViewModel() {
-    private val MIN_AGE = 10
-    private val MAX_AGE = 120
-    private val MIN_WEIGHT = 20f
-    private val MAX_WEIGHT = 400f
-    private val REQUIRED_FIELD_MESSAGE = "Обязательное поле"
-    private val WRONG_AGE_MESSAGE = "Значение должно быть больше $MIN_AGE и меньше $MAX_AGE"
-    private val WRONG_WEIGHT_MESSAGE = "Значение должно быть больше $MIN_WEIGHT и меньше $MAX_WEIGHT"
-    private val INVALID_FIELD_VALUE_MESSAGE = "Некорректное значение"
-    private val INVALID_FIELDS_DATA_MESSAGE = "Некорректные данные для создания аккаунта"
-    private val INVALID_WORKOUT_ID_MESSAGE = "Выбран некорректный план тренировок"
-
-    val genderVariants = listOf(Gender.Male, Gender.Female)
-    val allExercises = _appDb.exerciseDao.getAll()
 
     init {
         loadWorkoutPlans()
+        loadMuscleGroupsAndExercises()
         loadExercises()
     }
 
-    private val _signUpState = MutableStateFlow<SignUpState>(SignUpState.Initial)
-    val signUpState = _signUpState.asStateFlow()
+    private var _state = MutableStateFlow(SignUpScreenState())
+    val state = _state.asStateFlow()
 
-    private val _workoutPlans = MutableStateFlow<List<WorkoutPlan>>(emptyList())
-    val workoutPlans = _workoutPlans.asStateFlow()
-
-    private val _muscleGroupWithExercisesMap = MutableStateFlow<MutableMap<String, List<Exercise>>>(mutableMapOf())
-    val muscleGroupWithExercisesMap = _muscleGroupWithExercisesMap.asStateFlow()
-
-    private val _selectedExercises = MutableStateFlow<MutableList<Exercise>>(mutableListOf())
-    val exercises = _selectedExercises.asStateFlow()
-
-    val fieldsErrorState = mutableStateOf(FieldErrorStates())
-
-    // Forms states
-    val username = mutableStateOf("")
-    val age = mutableStateOf("")
-    val weight = mutableStateOf("")
-    val gender = mutableStateOf(Gender.Male)
-    val workoutId = mutableStateOf<Int?>(null)
-    val selectedExerciseIds = mutableStateOf<Set<Int>>(emptySet())
-
-    // Update functions
-    fun updateUsername(text: String) { username.value = text.trim() }
-    fun updateAge(text: String) { age.value = text.trim() }
-    fun updateWeight(text: String) { weight.value = text.trim() }
-    fun changeGender(gender: Gender) { this.gender.value = gender }
-    fun changeWorkoutId(workoutId: Int) { this.workoutId.value = workoutId }
-
-    fun toggleExerciseSelection(exerciseId: Int) {
-        selectedExerciseIds.value = selectedExerciseIds.value.toMutableSet().also { set ->
-            if (set.contains(exerciseId)) set.remove(exerciseId)
-            else set.add(exerciseId)
-        }
+    //region Методы обновления UI
+    fun updateUsername(text: String) {
+        _state.update { it.copy(username = text.trim()) }
     }
 
-    //Load Functions
-    fun loadWorkoutPlans() {
+    fun updateAge(text: String) {
+        _state.update { it.copy(age = text.trim()) }
+    }
+
+    fun updateWeight(text: String) {
+        _state.update { it.copy(weight = text.trim()) }
+    }
+
+    fun changeGender(gender: Gender) {
+        _state.update { it.copy(gender = gender) }
+    }
+
+    fun changeWorkoutId(workoutId: Int) {
+        _state.update { it.copy(workoutId = workoutId) }
+    }
+
+    fun toggleExerciseSelection(exerciseId: Int) {
+        if (_state.value.toggledExerciseIds.contains(exerciseId)) {
+            _state.update { it.copy(toggledExerciseIds = it.toggledExerciseIds.minus(exerciseId)) }
+        } else {
+            _state.update { it.copy(toggledExerciseIds = it.toggledExerciseIds.plus(exerciseId)) }
+        }
+    }
+    //endregion
+
+    //region Методы загрузки данных
+    private fun loadWorkoutPlans() {
         viewModelScope.launch {
             _appDb.workoutPlanDao.getAll().collect() { plans ->
-                _workoutPlans.value = plans
+                _state.update {
+                    it.copy(workoutPlans = plans)
+                }
             }
         }
     }
 
-    fun loadExercises() {
+    private fun loadMuscleGroupsAndExercises() {
         viewModelScope.launch {
-            var muscleGroupsWithExercises = _appDb.muscleGroupDao.getAllWithExercises().first()
+            val muscleGroupsWithExercises = _appDb.muscleGroupDao.getAllWithExercises().first()
             val localMap = mutableMapOf<String, List<Exercise>>()
 
             muscleGroupsWithExercises.forEach { groupWithExercise ->
                 localMap[groupWithExercise.muscleGroup.name] = groupWithExercise.exercises
             }
 
-            _muscleGroupWithExercisesMap.value = localMap
+            _state.update { it.copy(muscleGroupWithExercisesMap = localMap) }
         }
     }
 
-    suspend fun selectExercisesByIds() {
+    private fun loadExercises() {
+        viewModelScope.launch {
+            _appDb.exerciseDao.getAll().collect { list ->
+                _state.update { it.copy(exercises = list) }
+            }
+        }
     }
+    //endregion
 
-    // Validate functions
+    //region Методы валидации
     private fun validateUsername() {
-        fieldsErrorState.value = if (username.value.isBlank()) {
-            fieldsErrorState.value.copy(usernameError = REQUIRED_FIELD_MESSAGE)
-        }
-        else {
-            fieldsErrorState.value.copy(usernameError = "")
+        _state.update {
+            it.copy(
+                fieldsErrorState = if (_state.value.username.isBlank()) {
+                    it.fieldsErrorState.copy(username = Constansts.REQUIRED_FIELD_MESSAGE)
+                } else {
+                    it.fieldsErrorState.copy(username = "")
+                }
+            )
         }
     }
 
     private fun validateAge() {
-        fieldsErrorState.value = when {
-            age.value.isBlank() -> fieldsErrorState.value.copy(ageError = REQUIRED_FIELD_MESSAGE)
-            else -> {
-                try {
-                    if (age.value.toInt() !in MIN_AGE..MAX_AGE)
-                        fieldsErrorState.value.copy(ageError = WRONG_AGE_MESSAGE)
-                    else fieldsErrorState.value.copy(ageError = "")
+        _state.update {
+            it.copy(
+                fieldsErrorState = when {
+                    _state.value.age.isBlank() -> it.fieldsErrorState.copy(age = Constansts.REQUIRED_FIELD_MESSAGE)
+                    else -> {
+                        try {
+                            if (_state.value.age.toInt() !in Constansts.MIN_AGE..Constansts.MAX_AGE)
+                                it.fieldsErrorState.copy(age = Constansts.WRONG_AGE_MESSAGE)
+                            else it.fieldsErrorState.copy(age = "")
+                        } catch (_: Exception) {
+                            it.fieldsErrorState.copy(age = Constansts.INVALID_FIELD_VALUE_MESSAGE)
+                        }
+                    }
                 }
-                catch (_: Exception) {
-                    fieldsErrorState.value.copy(ageError = INVALID_FIELD_VALUE_MESSAGE)
-                }
-            }
+            )
         }
     }
 
     private fun validateWeight() {
-        fieldsErrorState.value = when {
-            weight.value.isBlank() -> fieldsErrorState.value.copy(weightError = REQUIRED_FIELD_MESSAGE)
-            else -> {
-                try {
-                    if (weight.value.toFloat() !in MIN_WEIGHT..MAX_WEIGHT) {
-                        fieldsErrorState.value.copy(weightError = WRONG_WEIGHT_MESSAGE)
+        _state.update {
+            it.copy(
+                fieldsErrorState = when {
+                    _state.value.weight.isBlank() -> it.fieldsErrorState.copy(weight = Constansts.REQUIRED_FIELD_MESSAGE)
+                    else -> {
+                        try {
+                            if (it.weight.toFloat() !in Constansts.MIN_WEIGHT..Constansts.MAX_WEIGHT) {
+                                it.fieldsErrorState.copy(weight = Constansts.WRONG_WEIGHT_MESSAGE)
+                            } else it.fieldsErrorState.copy(weight = "")
+                        } catch (_: Exception) {
+                            it.fieldsErrorState.copy(weight = Constansts.INVALID_FIELD_VALUE_MESSAGE)
+                        }
                     }
-                    else fieldsErrorState.value.copy(weightError = "")
                 }
-                catch (_: Exception) {
-                    fieldsErrorState.value.copy(weightError = INVALID_FIELD_VALUE_MESSAGE)
-                }
-            }
+            )
         }
     }
 
-    private fun workoutIdExists() : Boolean {
-        return _workoutPlans.value.any{ it.id == workoutId.value }
+    private fun workoutIdExists(): Boolean {
+        return _state.value.workoutPlans.any { it.id == _state.value.workoutId }
     }
 
-    fun fieldsIsValid() : Boolean {
+    fun fieldsIsValid(): Boolean {
         validateUsername()
         validateAge()
         validateWeight()
 
-        if (fieldsErrorState.value.isValid()) {
+        if (_state.value.fieldsErrorState.isValid()) {
             return true
         }
 
-        _signUpState.value = SignUpState.Error(INVALID_FIELDS_DATA_MESSAGE)
+        _state.update { it.copy(signUpState = SignUpState.Error(Constansts.INVALID_FIELDS_DATA_MESSAGE)) }
         return false
     }
+    //endregion
 
-    fun addSelectedExercises(selectedExercise: SelectedExercise) {
-    }
-
+    //region Основная логика
     fun createAccount() {
         viewModelScope.launch {
             try {
-                if (!fieldsIsValid()) {
-                    _signUpState.value = SignUpState.Error(INVALID_FIELDS_DATA_MESSAGE)
-                    return@launch
-                }
-                if (!workoutIdExists()) {
-                    _signUpState.value = SignUpState.Error(INVALID_WORKOUT_ID_MESSAGE)
-                }
-
                 val user = User(
-                    username = username.value,
-                    age = age.value.toInt(),
-                    gender = gender.value,
-                    weight = weight.value.toFloat(),
-                    workoutProgramId = workoutId.value!!
+                    username = _state.value.username,
+                    age = _state.value.age.toInt(),
+                    gender = _state.value.gender,
+                    weight = _state.value.weight.toFloat(),
+                    workoutProgramId = _state.value.workoutId!!
                 )
 
-                _appDb.userDao.create(user)
-                _signUpState.value = SignUpState.Success
-            }
-            catch (e: Exception) {
-                _signUpState.value = SignUpState.Error(e.message.toString())
+                val userId = _appDb.userDao.create(user)
+                assignUserIdToExercises(userId.toInt())
+
+                _state.value.selectedExercisesWithNames.forEach { exerciseWithName ->
+                    _appDb.selectedExerciseDao.create(exerciseWithName.selectedExercise)
+                }
+
+                _state.update { it.copy(signUpState = SignUpState.Success) }
+            } catch (e: Exception) {
+                _state.update { it.copy(signUpState = SignUpState.Error(e.message.toString())) }
             }
         }
+    }
+
+    fun createSelectedExercisesWithNames() {
+        viewModelScope.launch {
+            try {
+                val selectedExercisesWithNames = _state.value.toggledExerciseIds.map { id ->
+                    SelectedExerciseWithName(
+                        SelectedExercise(
+                        id = null,
+                        exerciseId = id,
+                        repeatsNumber = 8,
+                        userId = -1,
+                        setsNumber = 3,
+                        currentWorkingWeight = 20f),
+                        exerciseName = _appDb.exerciseDao.getNameById(id))
+                }
+
+                _state.update { it.copy(selectedExercisesWithNames = selectedExercisesWithNames) }
+            }
+            catch (e: Exception) {
+                _state.update { it.copy(signUpState = SignUpState.Error(
+                    "Error while load selected exercises: ${e.message}")) }
+            }
+        }
+    }
+
+    fun updateSelectedExercisesWithNames(selectedExerciseWithName: SelectedExerciseWithName) {
+        _state.update {
+            val newList = it.selectedExercisesWithNames.map { exercise ->
+                if (exercise.selectedExercise.exerciseId == selectedExerciseWithName.selectedExercise.exerciseId) {
+                    selectedExerciseWithName
+                }
+                else {
+                    exercise
+                }
+            }
+            it.copy(selectedExercisesWithNames = newList)
+        }
+    }
+
+    private fun assignUserIdToExercises(userId: Int) {
+        viewModelScope.launch {
+            _state.update {
+                val updatedList = it.selectedExercisesWithNames.map { exerciseWithName ->
+                    exerciseWithName.selectedExercise.userId = userId
+                    exerciseWithName
+                }
+
+                it.copy(selectedExercisesWithNames = updatedList)
+            }
+        }
+    }
+    //endregion
+}
+
+
+data class SignUpScreenState(
+    val username: String = "",
+    val age: String = "",
+    val weight: String = "",
+    val gender: Gender = Gender.Male,
+    val workoutId: Int? = null,
+    val signUpState: SignUpState = SignUpState.Initial,
+    val workoutPlans: List<WorkoutPlan> = listOf(),
+    val muscleGroupWithExercisesMap: MutableMap<String, List<Exercise>> = mutableMapOf(),
+    val selectedExercisesWithNames: List<SelectedExerciseWithName> = listOf(),
+    val exercises: List<Exercise> = listOf(),
+    val toggledExerciseIds: Set<Int> = setOf(),
+    val fieldsErrorState: ErrorsState = ErrorsState()
+)
+
+data class ErrorsState(
+    var username: String = "",
+    var age: String = "",
+    var weight: String = "",
+) {
+    fun isValid(): Boolean {
+        return username.isEmpty() && age.isEmpty() && weight.isEmpty()
     }
 }
 
 sealed class SignUpState {
-    object Initial: SignUpState()
-    object FirstStepSuccess : SignUpState()
+    object Initial : SignUpState()
     object Success : SignUpState()
     data class Error(val message: String) : SignUpState()
 }
 
-data class FieldErrorStates(
-    var usernameError: String = "",
-    var ageError: String = "",
-    var weightError: String = "",
-) {
-    fun isValid() : Boolean {
-        return usernameError.isEmpty() && ageError.isEmpty() && weightError.isEmpty()
-    }
+object Constansts {
+    val MIN_AGE = 10
+    val MAX_AGE = 120
+    val MIN_WEIGHT = 20f
+    val MAX_WEIGHT = 400f
+    val REQUIRED_FIELD_MESSAGE = "Обязательное поле"
+    val WRONG_AGE_MESSAGE = "Значение должно быть больше $MIN_AGE и меньше $MAX_AGE"
+    val WRONG_WEIGHT_MESSAGE = "Значение должно быть больше $MIN_WEIGHT и меньше $MAX_WEIGHT"
+    val INVALID_FIELD_VALUE_MESSAGE = "Некорректное значение"
+    val INVALID_FIELDS_DATA_MESSAGE = "Некорректные данные для создания аккаунта"
+    val INVALID_WORKOUT_ID_MESSAGE = "Выбран некорректный план тренировок"
+    val genderVariants = listOf(Gender.Male, Gender.Female)
 }

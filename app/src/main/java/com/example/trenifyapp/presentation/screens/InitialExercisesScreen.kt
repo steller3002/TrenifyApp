@@ -25,9 +25,10 @@ fun InitialExercisesScreen(
     viewModel: SignUpViewModel,
     navigateToSettingUpExercisesScreen: () -> Unit
 ) {
+    val state by viewModel.state.collectAsState()
     val focusManager = LocalFocusManager.current
-    val muscleGroupsWithExercises by viewModel.muscleGroupWithExercisesMap.collectAsState()
-    val selectedExerciseIds by viewModel.selectedExerciseIds
+    val selectedExerciseIds = state.toggledExerciseIds
+    val muscleGroupsWithExercises = state.muscleGroupWithExercisesMap
 
     Column(
         modifier = Modifier
@@ -39,7 +40,6 @@ fun InitialExercisesScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-        // Заголовок приложения
         Text(
             text = "Trenify",
             fontSize = 32.sp,
@@ -48,7 +48,6 @@ fun InitialExercisesScreen(
             modifier = Modifier.padding(bottom = 32.dp)
         )
 
-        // Инструкция для пользователя
         Text(
             text = "Выберите упражнения",
             fontSize = 24.sp,
@@ -58,7 +57,6 @@ fun InitialExercisesScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // LazyColumn с упражнениями, сгруппированными по мышечным группам
         LazyColumn(
             modifier = Modifier
                 .weight(1f)
@@ -66,11 +64,10 @@ fun InitialExercisesScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(vertical = 8.dp)
         ) {
-            // Сортируем мышечные группы по алфавиту
-            muscleGroupsWithExercises.keys.sorted().forEach { muscleGroupName ->
-                val exercises = muscleGroupsWithExercises[muscleGroupName] ?: emptyList()
+            muscleGroupsWithExercises.keys.forEach { muscleGroupName ->
+                val exercises = muscleGroupsWithExercises[muscleGroupName]
+                    ?: emptyList()
 
-                // Заголовок мышечной группы
                 item {
                     Text(
                         text = muscleGroupName,
@@ -80,7 +77,6 @@ fun InitialExercisesScreen(
                     )
                 }
 
-                // Упражнения для текущей мышечной группы
                 items(exercises.sortedBy { it.name }) { exercise ->
                     ExerciseItem(
                         exercise = exercise,
@@ -95,9 +91,12 @@ fun InitialExercisesScreen(
             }
         }
 
-        // Кнопка продолжения
         Button(
-            onClick = { navigateToSettingUpExercisesScreen() },
+            onClick = {
+
+                navigateToSettingUpExercisesScreen()
+                viewModel.createSelectedExercisesWithNames()
+                      },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),

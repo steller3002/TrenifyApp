@@ -12,5 +12,5 @@ data class SelectedExercise(
     @ColumnInfo(name = "repeats_number") var repeatsNumber: Int,
 
     @ColumnInfo(name = "exercise_id") val exerciseId: Int,
-    @ColumnInfo(name = "user_id") val userId: Int,
+    @ColumnInfo(name = "user_id") var userId: Int,
 )

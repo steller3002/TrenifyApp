@@ -1,10 +1,15 @@
 package com.example.trenifyapp.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
 import com.example.trenifyapp.presentation.screens.AccountSelectionScreen
 import com.example.trenifyapp.presentation.screens.InitialUserDataScreen
 import com.example.trenifyapp.presentation.screens.InitialWorkoutPlansScreen
@@ -21,85 +26,89 @@ fun NavGraph(
 ) {
     NavHost(
         navController = navHostController,
-        startDestination = "accountSelection"
+        startDestination = ScreenRoute.AccountSelectionScreen.route
     ) {
-        composable("accountSelection") {
+        composable(ScreenRoute.AccountSelectionScreen.route) {
             val viewModel: AccountSelectionViewModel = hiltViewModel()
             AccountSelectionScreen(
                 navigateToInitialUserDataScreen = {
-                    navHostController.navigate("initialUserData")
+                    navHostController.navigate(NavigationRoute.Auth.route)
                 },
-                navigateToUserProfileScreen = { userId ->
-                    navHostController.navigate("userProfileScreen/$userId")
+                navigateToUserProfileScreen = {
+                    navHostController.navigate(ScreenRoute.UserProfileScreen.route)
                 },
                 viewModel = viewModel
             )
         }
 
-        composable("initialUserData") { backStackEntry ->
-            val viewModel: SignUpViewModel = hiltViewModel(backStackEntry)
-            InitialUserDataScreen(
-                viewModel = viewModel,
-                navigateToWorkoutPlansScreen = {
-                    navHostController.navigate("initialWorkoutPlans")
-                }
-            )
-        }
+        navigation(
+            startDestination = ScreenRoute.InitialUserDataScreen.route,
+            route = NavigationRoute.Auth.route
+        ) {
+            composable(ScreenRoute.InitialUserDataScreen.route) {
+                val viewModel = it.sharedViewModel<SignUpViewModel>(navHostController)
+                InitialUserDataScreen(
+                    viewModel = viewModel,
+                    navigateToWorkoutPlansScreen = {
+                        navHostController.navigate(ScreenRoute.InitialWorkoutPlan.route)
+                    }
+                )
+            }
 
-        composable("initialWorkoutPlans") { backStackEntry ->
-            val viewModel: SignUpViewModel =
-                if (navHostController.previousBackStackEntry != null)
-                    hiltViewModel(
-                        navHostController.previousBackStackEntry!!
-                    )
-            else hiltViewModel()
-            InitialWorkoutPlansScreen(
-                viewModel = viewModel,
-                navigateToWorkoutStatsScreen = {
-                    navHostController.navigate("initialExercisesScreen")
-                }
-            )
-        }
+            composable(ScreenRoute.InitialWorkoutPlan.route) {
+                val viewModel = it.sharedViewModel<SignUpViewModel>(navHostController)
+                InitialWorkoutPlansScreen(
+                    viewModel = viewModel,
+                    navigateToWorkoutStatsScreen = {
+                        navHostController.navigate(ScreenRoute.InitialExercisesScreen.route)
+                    }
+                )
+            }
 
-        composable("initialExercisesScreen") { backStackEntry ->
-            val viewModel: SignUpViewModel =
-                if (navHostController.previousBackStackEntry != null)
-                    hiltViewModel(
-                        navHostController.previousBackStackEntry!!
-                    )
-                else hiltViewModel()
-            InitialExercisesScreen(
-                viewModel = viewModel,
-                navigateToSettingUpExercisesScreen = {
-                    navHostController.navigate("initialSettingUpExercisesScreen")
-                }
-            )
-        }
+            composable(ScreenRoute.InitialExercisesScreen.route) {
+                val viewModel = it.sharedViewModel<SignUpViewModel>(navHostController)
+                InitialExercisesScreen(
+                    viewModel = viewModel,
+                    navigateToSettingUpExercisesScreen = {
+                        navHostController.navigate(ScreenRoute.InitialSettingUpExercisesScreen.route)
+                    }
+                )
+            }
 
-        composable("initialSettingUpExercisesScreen") { backStackEntry ->
-            val viewModel: SignUpViewModel =
-                if (navHostController.previousBackStackEntry != null)
-                    hiltViewModel(
-                        navHostController.previousBackStackEntry!!
-                    )
-                else hiltViewModel()
-            InitialSettingUpExercisesScreen (
-                viewModel = viewModel,
-                navigateToAccountsScreen = {
-                    navHostController.navigate("accountSelection")
-                }
-            )
-        }
-
-        composable("userProfileScreen/{userId}") { backStateEntry ->
-            val viewModel: UserProfileViewModel = hiltViewModel()
-            val userId = backStateEntry.arguments?.getString("userId")?.toIntOrNull()
-
-            userId?.let {
-                UserProfileScreen(
-                    userId = userId,
-                    viewModel = viewModel)
+            composable(ScreenRoute.InitialSettingUpExercisesScreen.route) {
+                val viewModel = it.sharedViewModel<SignUpViewModel>(navHostController)
+                InitialSettingUpExercisesScreen (
+                    viewModel = viewModel,
+                    navigateToAccountsScreen = {
+                        navHostController.navigate(ScreenRoute.AccountSelectionScreen.route)
+                    }
+                )
             }
         }
+
+        composable(ScreenRoute.UserProfileScreen.route) { backStateEntry ->
+            val viewModel: UserProfileViewModel = hiltViewModel()
+//            val userId = backStateEntry.arguments?.getString("userId")?.toIntOrNull()
+
+//            userId?.let {
+//                UserProfileScreen(
+//                    userId = userId,
+//                    viewModel = viewModel)
+//            }
+            UserProfileScreen(
+                userId = 0,
+                viewModel = viewModel
+            )
+        }
     }
+}
+
+@Composable
+inline fun <reified T: ViewModel> NavBackStackEntry.sharedViewModel(navController: NavController): T {
+    val navGraphRoute = destination.parent?.route?: return hiltViewModel()
+    val parentEntry = remember(this) {
+        navController.getBackStackEntry(navGraphRoute)
+    }
+
+    return hiltViewModel(parentEntry)
 }

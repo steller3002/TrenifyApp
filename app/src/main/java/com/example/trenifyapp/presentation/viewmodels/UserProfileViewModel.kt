@@ -15,12 +15,12 @@ class UserProfileViewModel @Inject constructor(
     private val appDb: AppDb,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val userId: Int = checkNotNull(savedStateHandle.get<String>("userId")?.toInt())
+//    private val userId: Int = checkNotNull(savedStateHandle.get<String>("userId")?.toInt())
     val user = mutableStateOf<User?>(null)
 
-    init {
-        viewModelScope.launch {
-            user.value = appDb.userDao.getById(userId)
-        }
-    }
+//    init {
+//        viewModelScope.launch {
+//            user.value = appDb.userDao.getById(userId)
+//        }
+//    }
 }
