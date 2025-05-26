@@ -46,7 +46,7 @@ fun InitialSettingUpExercisesScreen(
     navigateToAccountsScreen: () -> Unit
 ) {
     /*TODO:
-    добавить необходимость выбора по меньшей мере двух упражнений для каждой группы мышц
+    Добавить необходимость выбора по меньшей мере двух упражнений для каждой группы мышц
      */
 
     val state by viewModel.state.collectAsState()

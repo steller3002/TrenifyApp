@@ -18,12 +18,13 @@ import com.example.trenifyapp.ui.theme.Orange
 
 @Composable
 fun BottomNavigation(
-    navController: NavController
+    navController: NavController,
+    userId: Int,
 ) {
     val listItems = listOf(
-        NavigationItem.Screen1,
-        NavigationItem.Screen2,
-        NavigationItem.Screen3
+        NavigationItem.JournalNavigationItem,
+        NavigationItem.WorkoutNavigationItem,
+        NavigationItem.AccountNavigationItem
     )
     NavigationBar (
         Modifier.background(Color.White)
@@ -34,7 +35,16 @@ fun BottomNavigation(
             NavigationBarItem(
                 selected = currentRoute == item.route,
                 onClick = {
-                    navController.navigate(item.route)
+                    navController.navigate(
+                        when (item) {
+                            is NavigationItem.JournalNavigationItem ->
+                                ScreenRoute.JournalScreen.createRoute(userId)
+                            is NavigationItem.WorkoutNavigationItem ->
+                                ScreenRoute.WorkoutScreen.createRoute(userId)
+                            is NavigationItem.AccountNavigationItem ->
+                                ScreenRoute.AccountScreen.createRoute(userId)
+                        }
+                    )
                 },
                 icon = {
                     Icon(

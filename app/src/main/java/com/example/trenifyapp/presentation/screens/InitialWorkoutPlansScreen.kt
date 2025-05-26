@@ -69,8 +69,8 @@ fun InitialWorkoutPlansScreen(
             this.items(workoutPlans) { plan ->
                 WorkoutPlanItem(
                     plan = plan,
-                    isSelected = state.workoutId == plan.id,
-                    onSelect = { viewModel.changeWorkoutId(plan.id!!) },
+                    isSelected = state.workoutId == plan.workoutPlanId,
+                    onSelect = { viewModel.changeWorkoutId(plan.workoutPlanId!!) },
                 )
             }
         }

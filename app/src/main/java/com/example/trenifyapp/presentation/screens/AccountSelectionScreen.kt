@@ -18,7 +18,6 @@
     import androidx.compose.ui.graphics.Color
     import androidx.compose.ui.text.font.FontWeight
     import androidx.compose.ui.unit.dp
-    import androidx.compose.ui.unit.sp
     import com.example.trenifyapp.presentation.viewmodels.AccountSelectionViewModel
     import com.example.trenifyapp.ui.theme.Orange
     import androidx.compose.foundation.lazy.items
@@ -52,7 +51,6 @@
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                // Заголовок
                 Text(
                     text = "Выберите аккаунт",
                     style = MaterialTheme.typography.headlineMedium.copy(
@@ -62,7 +60,6 @@
                     modifier = Modifier.padding(top = 16.dp)
                 )
 
-                // Список аккаунтов
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -75,7 +72,7 @@
                                 .fillMaxWidth()
                                 .height(72.dp),
                             colors = CardDefaults.elevatedCardColors(
-                                containerColor = if (user.id == selectedUserId)
+                                containerColor = if (user.userId == selectedUserId)
                                     Orange.copy(alpha = 0.2f)
                                 else
                                     MaterialTheme.colorScheme.surfaceVariant
@@ -85,10 +82,10 @@
                                 pressedElevation = 8.dp
                             ),
                             onClick = {
-                                if (user.id == selectedUserId) {
-                                    navigateToUserProfileScreen(user.id!!)
+                                if (user.userId == selectedUserId) {
+                                    navigateToUserProfileScreen(user.userId!!)
                                 } else {
-                                    viewModel.changeSelectedUser(user.id!!)
+                                    viewModel.changeSelectedUser(user.userId!!)
                                 }
                             }
                         ) {
@@ -98,20 +95,18 @@
                                     .padding(horizontal = 16.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                // Можно добавить аватарку
-                                // Icon(Icons.Default.AccountCircle, contentDescription = null)
 
                                 Text(
                                     text = user.username,
                                     style = MaterialTheme.typography.titleMedium,
-                                    color = if (user.id == selectedUserId)
+                                    color = if (user.userId == selectedUserId)
                                         Orange
                                     else
                                         MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.weight(1f)
                                 )
 
-                                if (user.id == selectedUserId) {
+                                if (user.userId == selectedUserId) {
                                     Icon(
                                         imageVector = Icons.Default.Check,
                                         contentDescription = "Выбрано",
@@ -124,7 +119,6 @@
                     }
                 }
 
-                // Кнопка создания нового аккаунта
                 Button(
                     onClick = navigateToInitialUserDataScreen,
                     modifier = Modifier

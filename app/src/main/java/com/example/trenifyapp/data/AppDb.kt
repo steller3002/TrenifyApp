@@ -2,6 +2,7 @@ package com.example.trenifyapp.data
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.example.trenifyapp.data.dao.ExerciseDao
 import com.example.trenifyapp.data.dao.MuscleGroupDao
 import com.example.trenifyapp.data.dao.SelectedExerciseDao
@@ -26,6 +27,9 @@ import com.example.trenifyapp.data.entities.ExercisesMusclesCrossRef
         ExercisesMusclesCrossRef::class,
     ],
     version = 1
+)
+@TypeConverters(
+    DateConverter::class
 )
 abstract class AppDb : RoomDatabase() {
     abstract val userDao: UserDao

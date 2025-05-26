@@ -3,6 +3,8 @@ package com.example.trenifyapp.presentation.screens
 import androidx.compose.runtime.Composable
 
 @Composable
-fun JournalScreen() {
+fun JournalScreen(
+    userId: Int,
+) {
 
 }

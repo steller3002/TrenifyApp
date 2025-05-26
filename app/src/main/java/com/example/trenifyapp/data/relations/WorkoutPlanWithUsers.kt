@@ -8,8 +8,8 @@ import com.example.trenifyapp.data.entities.WorkoutPlan
 data class WorkoutPlanWithUsers(
     @Embedded val workoutPlan: WorkoutPlan,
     @Relation(
-        parentColumn = "id",
-        entityColumn = "workout_program_id"
+        parentColumn = "workout_plan_id",
+        entityColumn = "workout_plan_owner_id"
     )
     val users: List<User>
 )

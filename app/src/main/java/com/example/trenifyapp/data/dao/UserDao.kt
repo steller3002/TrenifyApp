@@ -12,7 +12,7 @@ interface UserDao {
     @Query("SELECT * FROM users")
     fun getAll(): Flow<List<User>>
 
-    @Query("SELECT * FROM users WHERE id = :id")
+    @Query("SELECT * FROM users WHERE user_id = :id")
     suspend fun getById(id: Int): User
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)

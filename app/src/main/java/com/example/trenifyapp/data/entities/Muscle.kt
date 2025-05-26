@@ -11,6 +11,6 @@ data class Muscle(
     val muscleId: Int? = null,
     val name: String,
 
-    @ColumnInfo(name = "muscle_group_id")
-    val muscleGroupId: Int
+    @ColumnInfo(name = "muscle_group_owner_id")
+    val muscleGroupOwnerId: Int
 )

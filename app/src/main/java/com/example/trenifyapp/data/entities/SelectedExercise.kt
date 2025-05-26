@@ -6,11 +6,13 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "selected_exercises")
 data class SelectedExercise(
-    @PrimaryKey(autoGenerate = true) val id: Int? = null,
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "selected_exercise_id")
+    val selectedExerciseId: Int? = null,
     @ColumnInfo(name = "current_working_weight") var currentWorkingWeight: Float,
     @ColumnInfo(name = "sets_number") var setsNumber: Int,
     @ColumnInfo(name = "repeats_number") var repeatsNumber: Int,
 
-    @ColumnInfo(name = "exercise_id") val exerciseId: Int,
-    @ColumnInfo(name = "user_id") var userId: Int,
+    @ColumnInfo(name = "exercise_owner_id") val exerciseOwnerId: Int,
+    @ColumnInfo(name = "user_owner_id") var userOwnerId: Int,
 )

@@ -10,6 +10,6 @@ interface WorkoutPlanDao {
     @Query("SELECT * FROM workout_plans")
     fun getAll(): Flow<List<WorkoutPlan>>
 
-    @Query("SELECT * FROM workout_plans WHERE id = :id")
+    @Query("SELECT * FROM workout_plans WHERE workout_plan_id = :id")
     suspend fun getById(id: Int): WorkoutPlan
 }

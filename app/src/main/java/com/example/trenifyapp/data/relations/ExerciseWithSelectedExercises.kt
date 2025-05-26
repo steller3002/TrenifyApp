@@ -8,7 +8,7 @@ import com.example.trenifyapp.data.entities.SelectedExercise
 data class ExerciseWithSelectedExercises(
     @Embedded val exercise: Exercise,
     @Relation(
-        parentColumn = "id",
-        entityColumn = "exercise_id")
+        parentColumn = "exercise_id",
+        entityColumn = "exercise_owner_id")
     val selectedExercises: List<SelectedExercise>
 )

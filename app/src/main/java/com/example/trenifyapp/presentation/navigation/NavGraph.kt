@@ -15,10 +15,9 @@ import com.example.trenifyapp.presentation.screens.InitialUserDataScreen
 import com.example.trenifyapp.presentation.screens.InitialWorkoutPlansScreen
 import com.example.trenifyapp.presentation.screens.InitialExercisesScreen
 import com.example.trenifyapp.presentation.screens.InitialSettingUpExercisesScreen
-import com.example.trenifyapp.presentation.screens.UserProfileScreen
+import com.example.trenifyapp.presentation.screens.UserMainScreen
 import com.example.trenifyapp.presentation.viewmodels.AccountSelectionViewModel
 import com.example.trenifyapp.presentation.viewmodels.SignUpViewModel
-import com.example.trenifyapp.presentation.viewmodels.UserProfileViewModel
 
 @Composable
 fun NavGraph(
@@ -34,8 +33,8 @@ fun NavGraph(
                 navigateToInitialUserDataScreen = {
                     navHostController.navigate(NavigationRoute.Auth.route)
                 },
-                navigateToUserProfileScreen = {
-                    navHostController.navigate(ScreenRoute.UserProfileScreen.route)
+                navigateToUserProfileScreen = { userId ->
+                    navHostController.navigate(ScreenRoute.UserProfileScreen.createRoute(userId))
                 },
                 viewModel = viewModel
             )
@@ -84,20 +83,12 @@ fun NavGraph(
                     }
                 )
             }
+
         }
 
-        composable(ScreenRoute.UserProfileScreen.route) { backStateEntry ->
-            val viewModel: UserProfileViewModel = hiltViewModel()
-//            val userId = backStateEntry.arguments?.getString("userId")?.toIntOrNull()
-
-//            userId?.let {
-//                UserProfileScreen(
-//                    userId = userId,
-//                    viewModel = viewModel)
-//            }
-            UserProfileScreen(
-                userId = 0,
-                viewModel = viewModel
+        composable(ScreenRoute.UserProfileScreen.route) { backStackEntry ->
+            UserMainScreen(
+                userId = backStackEntry.arguments?.getString("userId")?.toIntOrNull() ?: 0
             )
         }
     }

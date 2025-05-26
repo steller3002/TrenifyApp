@@ -146,7 +146,7 @@ class SignUpViewModel @Inject constructor(
     }
 
     private fun workoutIdExists(): Boolean {
-        return _state.value.workoutPlans.any { it.id == _state.value.workoutId }
+        return _state.value.workoutPlans.any { it.workoutPlanId == _state.value.workoutId }
     }
 
     fun fieldsIsValid(): Boolean {
@@ -172,7 +172,7 @@ class SignUpViewModel @Inject constructor(
                     age = _state.value.age.toInt(),
                     gender = _state.value.gender,
                     weight = _state.value.weight.toFloat(),
-                    workoutProgramId = _state.value.workoutId!!
+                    workoutPlanOwnerId = _state.value.workoutId!!
                 )
 
                 val userId = _appDb.userDao.create(user)
@@ -195,10 +195,10 @@ class SignUpViewModel @Inject constructor(
                 val selectedExercisesWithNames = _state.value.toggledExerciseIds.map { id ->
                     SelectedExerciseWithName(
                         SelectedExercise(
-                        id = null,
-                        exerciseId = id,
+                        selectedExerciseId = null,
+                        exerciseOwnerId = id,
                         repeatsNumber = 8,
-                        userId = -1,
+                        userOwnerId = -1,
                         setsNumber = 3,
                         currentWorkingWeight = 20f),
                         exerciseName = _appDb.exerciseDao.getNameById(id))
@@ -216,7 +216,7 @@ class SignUpViewModel @Inject constructor(
     fun updateSelectedExercisesWithNames(selectedExerciseWithName: SelectedExerciseWithName) {
         _state.update {
             val newList = it.selectedExercisesWithNames.map { exercise ->
-                if (exercise.selectedExercise.exerciseId == selectedExerciseWithName.selectedExercise.exerciseId) {
+                if (exercise.selectedExercise.exerciseOwnerId == selectedExerciseWithName.selectedExercise.exerciseOwnerId) {
                     selectedExerciseWithName
                 }
                 else {
@@ -231,7 +231,7 @@ class SignUpViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update {
                 val updatedList = it.selectedExercisesWithNames.map { exerciseWithName ->
-                    exerciseWithName.selectedExercise.userId = userId
+                    exerciseWithName.selectedExercise.userOwnerId = userId
                     exerciseWithName
                 }
 

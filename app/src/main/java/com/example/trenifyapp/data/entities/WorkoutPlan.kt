@@ -7,9 +7,14 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "workout_plans")
 data class WorkoutPlan(
     @PrimaryKey(autoGenerate = true)
-    val id: Int? = null,
+    @ColumnInfo(name = "workout_plan_id")
+    val workoutPlanId: Int? = null,
     val name: String,
     val description: String,
     @ColumnInfo(name = "days_per_cycle")
     val daysPerCycle: Int,
+
+    /*TODO
+    Наименование тренировочных фаз (например тренировка Верха или Низа, Ноги или Спина)
+     */
 )

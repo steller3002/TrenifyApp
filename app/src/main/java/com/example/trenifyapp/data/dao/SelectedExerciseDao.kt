@@ -7,7 +7,7 @@ import com.example.trenifyapp.data.entities.SelectedExercise
 
 @Dao
 interface SelectedExerciseDao {
-    @Query("SELECT * FROM selected_exercises WHERE exercise_id = :exerciseId")
+    @Query("SELECT * FROM selected_exercises WHERE selected_exercise_id = :exerciseId")
     suspend fun getByExerciseId(exerciseId: Int): SelectedExercise
 
     @Insert
