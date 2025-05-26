@@ -1,8 +1,10 @@
     package com.example.trenifyapp.presentation.screens
 
     import androidx.compose.foundation.layout.Arrangement
+    import androidx.compose.foundation.layout.Box
     import androidx.compose.foundation.layout.Column
     import androidx.compose.foundation.layout.Row
+    import androidx.compose.foundation.layout.Spacer
     import androidx.compose.foundation.layout.fillMaxSize
     import androidx.compose.foundation.layout.fillMaxWidth
     import androidx.compose.foundation.layout.height
@@ -44,84 +46,88 @@
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-                Text(
-                    text = "Выберите аккаунт",
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    ),
-                    modifier = Modifier.padding(top = 16.dp)
-                )
-
-                LazyColumn(
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                        .fillMaxSize()
+                        .padding(24.dp)
                 ) {
-                    items(accounts) { user ->
-                        ElevatedCard(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(72.dp),
-                            colors = CardDefaults.elevatedCardColors(
-                                containerColor = if (user.userId == selectedUserId)
-                                    Orange.copy(alpha = 0.2f)
-                                else
-                                    MaterialTheme.colorScheme.surfaceVariant
-                            ),
-                            elevation = CardDefaults.elevatedCardElevation(
-                                defaultElevation = 2.dp,
-                                pressedElevation = 8.dp
-                            ),
-                            onClick = {
-                                if (user.userId == selectedUserId) {
-                                    navigateToUserProfileScreen(user.userId!!)
-                                } else {
-                                    viewModel.changeSelectedUser(user.userId!!)
-                                }
-                            }
-                        ) {
-                            Row(
+                    Text(
+                        text = "Выберите аккаунт",
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onBackground
+                        ),
+                        modifier = Modifier.padding(top = 20.dp, bottom = 24.dp)
+                                    .align(Alignment.CenterHorizontally)
+                    )
+
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(accounts) { user ->
+                            ElevatedCard(
                                 modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(horizontal = 16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-
-                                Text(
-                                    text = user.username,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = if (user.userId == selectedUserId)
-                                        Orange
+                                    .fillMaxWidth()
+                                    .height(72.dp),
+                                colors = CardDefaults.elevatedCardColors(
+                                    containerColor = if (user.userId == selectedUserId)
+                                        Orange.copy(alpha = 0.2f)
                                     else
-                                        MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.weight(1f)
-                                )
-
-                                if (user.userId == selectedUserId) {
-                                    Icon(
-                                        imageVector = Icons.Default.Check,
-                                        contentDescription = "Выбрано",
-                                        tint = Orange,
-                                        modifier = Modifier.size(24.dp)
+                                        MaterialTheme.colorScheme.surfaceVariant
+                                ),
+                                elevation = CardDefaults.elevatedCardElevation(
+                                    defaultElevation = 2.dp,
+                                    pressedElevation = 8.dp
+                                ),
+                                onClick = {
+                                    if (user.userId == selectedUserId) {
+                                        navigateToUserProfileScreen(user.userId!!)
+                                    } else {
+                                        viewModel.changeSelectedUser(user.userId!!)
+                                    }
+                                }
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(horizontal = 16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = user.username,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = if (user.userId == selectedUserId)
+                                            Orange
+                                        else
+                                            MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.weight(1f)
                                     )
+
+                                    if (user.userId == selectedUserId) {
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = "Выбрано",
+                                            tint = Orange,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(96.dp)) // место под кнопку
                 }
 
                 Button(
                     onClick = navigateToInitialUserDataScreen,
                     modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(start = 24.dp, end = 24.dp, bottom = 60.dp)
                         .fillMaxWidth()
                         .height(56.dp),
                     shape = MaterialTheme.shapes.large,
