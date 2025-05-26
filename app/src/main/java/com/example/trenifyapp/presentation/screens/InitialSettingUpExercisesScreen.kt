@@ -45,71 +45,72 @@ fun InitialSettingUpExercisesScreen(
     viewModel: SignUpViewModel,
     navigateToAccountsScreen: () -> Unit
 ) {
-    /*TODO:
-    Добавить необходимость выбора по меньшей мере двух упражнений для каждой группы мышц
-     */
-
     val state by viewModel.state.collectAsState()
     val focusManager = LocalFocusManager.current
     val selectedExercisesWithNames = state.selectedExercisesWithNames
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(24.dp)
             .pointerInput(Unit) {
                 detectTapGestures(onTap = { focusManager.clearFocus() })
-            },
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
-    ) {
-        Text(
-            text = "Trenify",
-            fontSize = 32.sp,
-            fontWeight = FontWeight.Bold,
-            color = Orange,
-            modifier = Modifier.padding(bottom = 32.dp)
-        )
-
-        Text(
-            text = "Настройка упражнений (${selectedExercisesWithNames.size})",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        if (selectedExercisesWithNames.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Вы не выбрали ни одного упражнения",
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
             }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(vertical = 8.dp)
-            ) {
-                items(selectedExercisesWithNames) { exercise ->
-                    ConfigurableExerciseItem(
-                        exercise = exercise,
-                        onUpdate = { updatedExercise ->
-                            viewModel.updateSelectedExercisesWithNames(updatedExercise)
-                        }
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top
+        ) {
+            Text(
+                text = "Trenify",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                color = Orange,
+                modifier = Modifier.padding(bottom = 32.dp)
+            )
+
+            Text(
+                text = "Настройка упражнений (${selectedExercisesWithNames.size})",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            if (selectedExercisesWithNames.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Вы не выбрали ни одного упражнения",
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(bottom = 96.dp, top = 8.dp)
+                ) {
+                    items(selectedExercisesWithNames) { exercise ->
+                        ConfigurableExerciseItem(
+                            exercise = exercise,
+                            onUpdate = { updatedExercise ->
+                                viewModel.updateSelectedExercisesWithNames(updatedExercise)
+                            }
+                        )
+                    }
                 }
             }
         }
+
 
         Button(
             onClick = {
@@ -117,6 +118,8 @@ fun InitialSettingUpExercisesScreen(
                 navigateToAccountsScreen()
             },
             modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 30.dp)
                 .fillMaxWidth()
                 .height(56.dp),
             colors = ButtonDefaults.buttonColors(
@@ -128,6 +131,7 @@ fun InitialSettingUpExercisesScreen(
         }
     }
 }
+
 
 @Composable
 private fun ConfigurableExerciseItem(

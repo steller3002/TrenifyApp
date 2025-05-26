@@ -29,56 +29,63 @@ fun InitialWorkoutPlansScreen(
     val state by viewModel.state.collectAsState()
     val workoutPlans = state.workoutPlans
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(24.dp)
             .pointerInput(Unit) {
                 detectTapGestures(onTap = { focusManager.clearFocus() })
-            },
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
+            }
     ) {
-        // Заголовок приложения
-        Text(
-            text = "Trenify",
-            fontSize = 32.sp,
-            fontWeight = FontWeight.Bold,
-            color = Orange,
-            modifier = Modifier.padding(bottom = 32.dp)
-        )
-
-        // Инструкция для пользователя
-        Text(
-            text = "Выберите план тренировок",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // LazyColumn для эффективного отображения списка планов
-        LazyColumn(
+        Column(
             modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(vertical = 8.dp)
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top
         ) {
-            this.items(workoutPlans) { plan ->
-                WorkoutPlanItem(
-                    plan = plan,
-                    isSelected = state.workoutId == plan.workoutPlanId,
-                    onSelect = { viewModel.changeWorkoutId(plan.workoutPlanId!!) },
-                )
+            // Заголовок приложения
+            Text(
+                text = "Trenify",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                color = Orange,
+                modifier = Modifier.padding(bottom = 32.dp)
+            )
+
+            // Инструкция для пользователя
+            Text(
+                text = "Выберите план тренировок",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Список планов с отступом снизу, чтобы не перекрывался кнопкой
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(bottom = 96.dp, top = 8.dp)
+            ) {
+                items(workoutPlans) { plan ->
+                    WorkoutPlanItem(
+                        plan = plan,
+                        isSelected = state.workoutId == plan.workoutPlanId,
+                        onSelect = { viewModel.changeWorkoutId(plan.workoutPlanId!!) },
+                    )
+                }
             }
         }
 
-        // Кнопка продолжения
+
         Button(
-            onClick = { navigateToWorkoutStatsScreen() },
+            onClick = navigateToWorkoutStatsScreen,
             modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 30.dp)
                 .fillMaxWidth()
                 .height(56.dp),
             enabled = state.workoutId != null,

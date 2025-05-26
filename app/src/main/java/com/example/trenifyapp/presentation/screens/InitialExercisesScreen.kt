@@ -30,74 +30,79 @@ fun InitialExercisesScreen(
     val selectedExerciseIds = state.toggledExerciseIds
     val muscleGroupsWithExercises = state.muscleGroupWithExercisesMap
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(24.dp)
             .pointerInput(Unit) {
                 detectTapGestures(onTap = { focusManager.clearFocus() })
-            },
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
+            }
     ) {
-        Text(
-            text = "Trenify",
-            fontSize = 32.sp,
-            fontWeight = FontWeight.Bold,
-            color = Orange,
-            modifier = Modifier.padding(bottom = 32.dp)
-        )
-
-        Text(
-            text = "Выберите упражнения",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(vertical = 8.dp)
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top
         ) {
-            muscleGroupsWithExercises.keys.forEach { muscleGroupName ->
-                val exercises = muscleGroupsWithExercises[muscleGroupName]
-                    ?: emptyList()
+            Text(
+                text = "Trenify",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                color = Orange,
+                modifier = Modifier.padding(bottom = 32.dp)
+            )
 
-                item {
-                    Text(
-                        text = muscleGroupName,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
-                    )
-                }
+            Text(
+                text = "Выберите упражнения",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
 
-                items(exercises.sortedBy { it.name }) { exercise ->
-                    ExerciseItem(
-                        exercise = exercise,
-                        isSelected = selectedExerciseIds.contains(exercise.exerciseId),
-                        onToggleSelection = {
-                            exercise.exerciseId?.let { id ->
-                                viewModel.toggleExerciseSelection(id)
+            Spacer(modifier = Modifier.height(8.dp))
+
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(bottom = 96.dp, top = 8.dp)
+            ) {
+                muscleGroupsWithExercises.keys.forEach { muscleGroupName ->
+                    val exercises = muscleGroupsWithExercises[muscleGroupName] ?: emptyList()
+
+                    item {
+                        Text(
+                            text = muscleGroupName,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
+                        )
+                    }
+
+                    items(exercises.sortedBy { it.name }) { exercise ->
+                        ExerciseItem(
+                            exercise = exercise,
+                            isSelected = selectedExerciseIds.contains(exercise.exerciseId),
+                            onToggleSelection = {
+                                exercise.exerciseId?.let { id ->
+                                    viewModel.toggleExerciseSelection(id)
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }
 
+
         Button(
             onClick = {
-
                 navigateToSettingUpExercisesScreen()
                 viewModel.createSelectedExercisesWithNames()
-                      },
+            },
             modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 30.dp)
                 .fillMaxWidth()
                 .height(56.dp),
             enabled = selectedExerciseIds.isNotEmpty(),
