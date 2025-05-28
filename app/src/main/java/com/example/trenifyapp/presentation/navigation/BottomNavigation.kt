@@ -40,7 +40,7 @@ fun BottomNavigation(
                             is NavigationItem.JournalNavigationItem ->
                                 ScreenRoute.JournalScreen.createRoute(userId)
                             is NavigationItem.WorkoutNavigationItem ->
-                                ScreenRoute.WorkoutScreen.createRoute(userId)
+                                ScreenRoute.WorkoutGenerateScreen.createRoute(userId)
                             is NavigationItem.AccountNavigationItem ->
                                 ScreenRoute.AccountScreen.createRoute(userId)
                         }

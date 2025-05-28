@@ -167,12 +167,16 @@ class SignUpViewModel @Inject constructor(
     fun createAccount() {
         viewModelScope.launch {
             try {
+                val phaseOfCycleId = _appDb.workoutPlanDao.getPhasesIds(_state.value.workoutId!!)
+                    .phasesOfCycle[0].phaseOfCycleId!!
+
                 val user = User(
                     username = _state.value.username,
                     age = _state.value.age.toInt(),
                     gender = _state.value.gender,
                     weight = _state.value.weight.toFloat(),
-                    workoutPlanOwnerId = _state.value.workoutId!!
+                    workoutPlanOwnerId = _state.value.workoutId!!,
+                    phaseOfCycleOwnerId = phaseOfCycleId,
                 )
 
                 val userId = _appDb.userDao.create(user)

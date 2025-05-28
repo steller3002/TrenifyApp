@@ -15,6 +15,8 @@ data class User(
     var weight: Float,
     val gender: Gender,
 
+    @ColumnInfo(name = "phase_of_cycle_owner_id")
+    var phaseOfCycleOwnerId: Int,
     @ColumnInfo(name = "workout_plan_owner_id")
     var workoutPlanOwnerId: Int,
 )

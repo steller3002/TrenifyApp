@@ -11,9 +11,9 @@ data class Workout(
     @ColumnInfo(name = "workout_id")
     val workoutId: Int? = null,
     val date: Date,
-    @ColumnInfo(name = "ordinal_number_in_the_cycle")
-    val ordinalNumberInTheCycle: Int,
 
     @ColumnInfo(name = "user_owner_id")
-    val userOwnerId: Int
+    val userOwnerId: Int,
+    @ColumnInfo(name = "phase_of_cycle_owner_id")
+    val phaseOfCycleOwnerId: Int,
 )

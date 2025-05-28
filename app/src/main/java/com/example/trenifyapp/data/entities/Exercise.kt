@@ -13,5 +13,7 @@ data class Exercise(
     val description: String,
 
     @ColumnInfo(name = "muscle_group_owner_id")
-    val muscleGroupOwnerId: Int
+    val muscleGroupOwnerId: Int,
+    @ColumnInfo(name = "muscle_owner_id")
+    val muscleOwnerId: Int,
 )

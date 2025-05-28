@@ -15,7 +15,7 @@ sealed class ScreenRoute(val route: String) {
         fun createRoute(userId: Int) = "userProfileScreen/$userId"
     }
 
-    object WorkoutScreen : ScreenRoute("workoutScreen/{userId}") {
+    object WorkoutGenerateScreen : ScreenRoute("workoutScreen/{userId}") {
         fun createRoute(userId: Int) = "workoutScreen/$userId"
     }
 
@@ -26,4 +26,6 @@ sealed class ScreenRoute(val route: String) {
     object AccountScreen : ScreenRoute("accountScreen/{userId}") {
         fun createRoute(userId: Int) = "accountScreen/$userId"
     }
+
+    object WorkoutExercisesScreen : ScreenRoute("accountExercisesScreen")
 }
