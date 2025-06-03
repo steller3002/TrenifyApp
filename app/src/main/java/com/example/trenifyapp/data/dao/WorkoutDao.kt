@@ -6,7 +6,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import com.example.trenifyapp.data.entities.Workout
-import com.example.trenifyapp.data.entities.WorkoutWithSelectedExercises
 import com.example.trenifyapp.data.relations.WorkoutWithWorkoutExercises
 import kotlinx.coroutines.flow.Flow
 
@@ -32,8 +31,6 @@ interface WorkoutDao {
     @Query(
         "SELECT * FROM workouts WHERE user_owner_id = :userId AND phase_of_cycle_owner_id = :phaseOfCycleId " +
             "ORDER BY workout_id DESC LIMIT 1 OFFSET :offset")
-    suspend fun getLastWorkoutWithSelectedExercises(userId: Int, phaseOfCycleId: Int, offset: Int = 0): WorkoutWithSelectedExercises?
-    /*TODO:
-    здесь должны быть workoutExercises
-     */
+    suspend fun getLastWorkoutWithWorkoutExercises(userId: Int, phaseOfCycleId: Int, offset: Int = 0):
+            WorkoutWithWorkoutExercises?
 }

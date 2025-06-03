@@ -30,4 +30,3 @@ data class MuscleWithExercises(
         associateBy = Junction(ExercisesMusclesCrossRef::class))
     val exercises: List<Exercise>
 )
-

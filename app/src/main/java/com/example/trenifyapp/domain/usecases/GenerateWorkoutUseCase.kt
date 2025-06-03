@@ -3,11 +3,11 @@ package com.example.trenifyapp.domain.usecases
 import com.example.trenifyapp.data.AppDb
 import com.example.trenifyapp.data.DateConverter
 import com.example.trenifyapp.data.entities.Muscle
+import com.example.trenifyapp.data.entities.MuscleExerciseCount
 import com.example.trenifyapp.data.entities.PhaseOfCycle
 import com.example.trenifyapp.data.entities.SelectedExercise
 import com.example.trenifyapp.data.entities.Workout
 import com.example.trenifyapp.data.entities.WorkoutExercise
-import com.example.trenifyapp.data.entities.WorkoutWithSelectedExercises
 import java.util.Date
 import javax.inject.Inject
 
@@ -16,54 +16,95 @@ class GenerateWorkoutUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(userId: Int): Workout {
         val userWithSelectedExercises = _appDb.userDao.getSelectedExercises(userId)
-        val user = userWithSelectedExercises.user
         val workoutPlanWithPhases = _appDb.workoutPlanDao.getPhasesIds(userWithSelectedExercises.user.workoutPlanOwnerId)
+        val previousWorkoutWithWorkoutExercises = _appDb.workoutDao.getLastWorkoutWithWorkoutExercises(
+            userId = userId,
+            phaseOfCycleId = userWithSelectedExercises.user.phaseOfCycleOwnerId
+        )
 
-        /*TODO:
-        учёт предыдущих тренировок
-         */
-//        val lastWorkoutWithSelectedExercises = _appDb.workoutDao.getLastWorkoutWithSelectedExercises(
-//            userId,
-//            user.phaseOfCycleOwnerId
-//        )
-        val lastWorkoutWithSelectedExercises = null
+        val user = userWithSelectedExercises.user
+        val selectedExercises = userWithSelectedExercises.selectedExercises
+        val workoutPlan = workoutPlanWithPhases.workoutPlan
+        val phases = workoutPlanWithPhases.phasesOfCycle
+        val previousExercisesOrNull = previousWorkoutWithWorkoutExercises?.workoutExercises
 
         val newPhaseOfCycle = calcNewPhaseOfCycle(
-            userWithSelectedExercises.user.phaseOfCycleOwnerId,
-            workoutPlanWithPhases.phasesOfCycle
+            currentPhaseId = user.phaseOfCycleOwnerId,
+            phasesOfCycle = phases
         )
 
-        val newSelectedExercises = createNewSelectedExercises(
-            userWithSelectedExercises.selectedExercises,
-            _appDb.phaseOfCycleDao.getById(newPhaseOfCycle.phaseOfCycleId!!),
-            lastWorkoutWithSelectedExercises
+        val newExercises = chooseNewExercises(
+            selectedExercises = selectedExercises,
+            previousWorkoutExercises = previousExercisesOrNull,
+            _appDb.phaseOfCycleDao.getWithMuscleExerciseCountsById(newPhaseOfCycle.phaseOfCycleId!!)
+                .muscleExerciseCounts
         )
 
-        val workoutId = _appDb.workoutDao.create(
-            Workout(
-                workoutId = null,
-                date = getCurrentDate(),
-                userOwnerId = userId,
-                phaseOfCycleOwnerId = newPhaseOfCycle.phaseOfCycleId
-            )
-        )
-
-        newSelectedExercises.forEach { selectedExercise ->
-            _appDb.workoutExerciseDao.create(
-                WorkoutExercise(
-                    workoutExerciseId = null,
-                    selectedExerciseOwnerId = selectedExercise.selectedExerciseId!!,
-                    workoutOwnerId = workoutId.toInt()
-                )
-            )
-        }
-
-        val newUser = user.copy(
+        val workout = Workout(
+            workoutId = null,
+            date = getCurrentDate(),
+            userOwnerId = user.userId!!,
             phaseOfCycleOwnerId = newPhaseOfCycle.phaseOfCycleId
         )
-        _appDb.userDao.update(newUser)
+        val newWorkoutId = _appDb.workoutDao.create(workout)
 
-        return _appDb.workoutDao.getById(workoutId.toInt())
+
+        newExercises.forEach { selectedExercise ->
+            val workoutExercise = WorkoutExercise(
+                workoutExerciseId = null,
+                selectedExerciseOwnerId = selectedExercise.selectedExerciseId!!,
+                workoutOwnerId = newWorkoutId.toInt()
+            )
+
+            _appDb.workoutExerciseDao.create(workoutExercise)
+        }
+
+        user.phaseOfCycleOwnerId = newPhaseOfCycle.phaseOfCycleId
+        _appDb.userDao.update(user)
+
+        return _appDb.workoutDao.getById(newWorkoutId.toInt())
+    }
+
+    private suspend fun chooseNewExercises(
+        selectedExercises: List<SelectedExercise>,
+        previousWorkoutExercises: List<WorkoutExercise>?,
+        muscleExerciseCounts: List<MuscleExerciseCount>
+    ): List<SelectedExercise> {
+
+        val result = mutableListOf<SelectedExercise>()
+
+        muscleExerciseCounts.forEach { muscleExerciseCount ->
+            for (i in 0..<muscleExerciseCount.exercisesByMuscle) {
+                val exercise = findRightExercise(
+                    targetMuscle = _appDb.muscleDao.getById(muscleExerciseCount.muscleOwnerId),
+                    selectedExercises = selectedExercises,
+                    previousWorkoutExercises = previousWorkoutExercises,
+                    result
+                )
+
+                result.add(exercise)
+            }
+        }
+
+        return result
+    }
+
+    private suspend fun findRightExercise(
+        targetMuscle: Muscle,
+        selectedExercises: List<SelectedExercise>,
+        previousWorkoutExercises: List<WorkoutExercise>?,
+        alreadyAddedExercises: List<SelectedExercise>
+    ): SelectedExercise {
+
+        selectedExercises.forEach { selectedExercise ->
+            val exercise = _appDb.exerciseDao.getById(selectedExercise.exerciseOwnerId)
+            val exerciseTargetMuscle = _appDb.muscleDao.getById(exercise.muscleOwnerId)
+
+            if (exerciseTargetMuscle == targetMuscle && !alreadyAddedExercises.contains(selectedExercise))
+                return selectedExercise
+        }
+
+        return selectedExercises.random()
     }
 
     private fun calcNewPhaseOfCycle(currentPhaseId: Int, phasesOfCycle: List<PhaseOfCycle>): PhaseOfCycle {
@@ -76,62 +117,6 @@ class GenerateWorkoutUseCase @Inject constructor(
             if (index + 1 >= phasesOfCycle.size) return phasesOfCycle[0]
             return phasesOfCycle[index + 1]
         }
-    }
-
-    private suspend fun createNewSelectedExercises(
-        userSelectedExercises: List<SelectedExercise>,
-        phaseOfCycle: PhaseOfCycle,
-        lastWorkoutWithSelectedExercises: WorkoutWithSelectedExercises?
-    ): List<SelectedExercise> {
-        val result = mutableListOf<SelectedExercise>()
-
-        val muscleExerciseCounts = _appDb.phaseOfCycleDao.getWithMuscleExerciseCountsById(phaseOfCycle.phaseOfCycleId!!)
-            .muscleExerciseCounts
-
-        muscleExerciseCounts.forEach { muscleExerciseCount ->
-            val neededMuscle = _appDb.muscleDao.getById(muscleExerciseCount.muscleOwnerId)
-
-            for (i in 0..<muscleExerciseCount.exercisesByMuscle) {
-                result.add(findSelectedExercise(
-                    result,
-                    userSelectedExercises,
-                    neededMuscle,
-                    lastWorkoutWithSelectedExercises
-                ))
-            }
-        }
-
-        return result.toList()
-    }
-
-    private suspend fun findSelectedExercise(
-        alreadySelectedExercises: List<SelectedExercise>,
-        selectedExercises: List<SelectedExercise>,
-        neededMuscle: Muscle,
-        lastWorkoutWithSelectedExercises: WorkoutWithSelectedExercises?
-    ): SelectedExercise {
-        val exercise = selectedExercises.firstOrNull { selectedExercise ->
-            val usedMuscles = _appDb.exerciseDao.getWithMusclesById(selectedExercise.exerciseOwnerId).muscles
-
-            if (lastWorkoutWithSelectedExercises != null) {
-                val matchingMuscle = usedMuscles.find { it.muscleId == neededMuscle.muscleId }
-                val matchingExerciseWithPreviousWorkout = lastWorkoutWithSelectedExercises.selectedExercises.find {
-                    it.exerciseOwnerId == selectedExercise.exerciseOwnerId
-                }
-                val alreadySelected = alreadySelectedExercises.contains(selectedExercise)
-
-                matchingMuscle != null && matchingExerciseWithPreviousWorkout == null && !alreadySelected
-            }
-            else {
-                val alreadySelected = alreadySelectedExercises.contains(selectedExercise)
-
-                val matchingMuscle = usedMuscles.find { it.muscleId == neededMuscle.muscleId }
-                matchingMuscle != null && !alreadySelected
-            }
-        }
-
-        if (exercise == null) return selectedExercises[0]
-        return exercise
     }
 
     private fun getCurrentDate(): Date {
