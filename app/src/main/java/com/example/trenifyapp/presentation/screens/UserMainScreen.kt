@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.trenifyapp.presentation.navigation.BottomNavigation
 import com.example.trenifyapp.presentation.navigation.ScreenRoute
 import com.example.trenifyapp.presentation.navigation.sharedViewModel
+import com.example.trenifyapp.presentation.viewmodels.JournalViewModel
 import com.example.trenifyapp.presentation.viewmodels.WorkoutViewModel
 
 @Composable
@@ -34,15 +35,21 @@ fun UserMainScreen(
         Box(modifier = Modifier.padding(innerPadding)) {
             NavHost(
                 navController = navController,
-                startDestination = ScreenRoute.JournalScreen.route
+                startDestination = ScreenRoute.AccountScreen.route
             ) {
                 composable(ScreenRoute.JournalScreen.route) { backStackEntry ->
-                    JournalScreen(userId = backStackEntry.arguments?.getString("userId")?.toIntOrNull() ?: 0)
+                    val viewModel = backStackEntry.sharedViewModel<JournalViewModel>(navController)
+
+                    JournalScreen(
+                        onWorkoutClick = {
+                            navController.navigate(ScreenRoute.WorkoutDetailsScreen.route)
+                        },
+                        userId = backStackEntry.arguments?.getString("userId")?.toIntOrNull() ?: 0,
+                        viewModel = viewModel
+                    )
                 }
 
                 composable(ScreenRoute.WorkoutGenerateScreen.route) { backStackEntry ->
-                    val viewModel = backStackEntry.sharedViewModel<WorkoutViewModel>(navController)
-
                     WorkoutGenerateScreen(
                         userId = backStackEntry.arguments?.getString("userId")?.toIntOrNull() ?: 0,
                         viewModel = workoutViewModel,
@@ -53,12 +60,20 @@ fun UserMainScreen(
                 }
 
                 composable(ScreenRoute.AccountScreen.route) { backStackEntry ->
-                    AccountScreen(userId = backStackEntry.arguments?.getString("userId")?.toIntOrNull() ?: 0)
+                    AccountScreen(
+                        userId = backStackEntry.arguments?.getString("userId")?.toIntOrNull() ?: 0
+                    )
                 }
 
                 composable(ScreenRoute.WorkoutExercisesScreen.route) { backStackEntry ->
                     WorkoutExercisesScreen(
                         viewModel = workoutViewModel
+                    )
+                }
+
+                composable(ScreenRoute.WorkoutDetailsScreen.route) { backStackEntry ->
+                    WorkoutDetailsScreen(
+                        workoutId = backStackEntry.arguments?.getString("workoutId")?.toIntOrNull() ?: 0
                     )
                 }
             }

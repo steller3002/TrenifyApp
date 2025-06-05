@@ -1,31 +1,35 @@
 package com.example.trenifyapp.presentation.navigation
 
 sealed class ScreenRoute(val route: String) {
-    object AccountSelectionScreen : ScreenRoute("accountSelection")
+    data object AccountSelectionScreen : ScreenRoute("accountSelection")
 
-    object InitialUserDataScreen : ScreenRoute("initialUserData")
+    data object InitialUserDataScreen : ScreenRoute("initialUserData")
 
-    object InitialWorkoutPlan : ScreenRoute("initialWorkoutPlans")
+    data object InitialWorkoutPlan : ScreenRoute("initialWorkoutPlans")
 
-    object InitialExercisesScreen : ScreenRoute("initialExercisesScreen")
+    data object InitialExercisesScreen : ScreenRoute("initialExercisesScreen")
 
-    object InitialSettingUpExercisesScreen : ScreenRoute("initialSettingUpExercisesScreen")
+    data object InitialSettingUpExercisesScreen : ScreenRoute("initialSettingUpExercisesScreen")
 
-    object UserProfileScreen : ScreenRoute("userProfileScreen/{userId}") {
+    data object UserProfileScreen : ScreenRoute("userProfileScreen/{userId}") {
         fun createRoute(userId: Int) = "userProfileScreen/$userId"
     }
 
-    object WorkoutGenerateScreen : ScreenRoute("workoutScreen/{userId}") {
+    data object WorkoutGenerateScreen : ScreenRoute("workoutScreen/{userId}") {
         fun createRoute(userId: Int) = "workoutScreen/$userId"
     }
 
-    object JournalScreen : ScreenRoute("journalScreen/{userId}") {
+    data object JournalScreen : ScreenRoute("journalScreen/{userId}") {
         fun createRoute(userId: Int) = "journalScreen/$userId"
     }
 
-    object AccountScreen : ScreenRoute("accountScreen/{userId}") {
+    data object AccountScreen : ScreenRoute("accountScreen/{userId}") {
         fun createRoute(userId: Int) = "accountScreen/$userId"
     }
 
-    object WorkoutExercisesScreen : ScreenRoute("accountExercisesScreen")
+    data object WorkoutExercisesScreen : ScreenRoute("accountExercisesScreen")
+
+    data object WorkoutDetailsScreen : ScreenRoute("workoutDetailsScreen") {
+        fun createRoute(userId: Int) = "workoutDetailsScreen/$userId"
+    }
 }
