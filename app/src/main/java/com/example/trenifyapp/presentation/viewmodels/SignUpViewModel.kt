@@ -8,6 +8,7 @@ import com.example.trenifyapp.data.entities.SelectedExercise
 import com.example.trenifyapp.data.entities.User
 import com.example.trenifyapp.data.entities.WorkoutPlan
 import com.example.trenifyapp.domain.enums.Gender
+import com.example.trenifyapp.domain.usecases.CreateAccountUseCase
 import com.example.trenifyapp.presentation.dataclasses.SelectedExerciseWithName
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +20,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
-    private val _appDb: AppDb
+    private val _appDb: AppDb,
+    private val _createAccountUseCase: CreateAccountUseCase
 ) : ViewModel() {
 
     init {
@@ -32,25 +34,11 @@ class SignUpViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     //region Методы обновления UI
-    fun updateUsername(text: String) {
-        _state.update { it.copy(username = text.trim()) }
-    }
-
-    fun updateAge(text: String) {
-        _state.update { it.copy(age = text.trim()) }
-    }
-
-    fun updateWeight(text: String) {
-        _state.update { it.copy(weight = text.trim()) }
-    }
-
-    fun changeGender(gender: Gender) {
-        _state.update { it.copy(gender = gender) }
-    }
-
-    fun changeWorkoutId(workoutId: Int) {
-        _state.update { it.copy(workoutId = workoutId) }
-    }
+    fun updateUsername(text: String) { _state.update { it.copy(username = text.trim()) } }
+    fun updateAge(text: String) { _state.update { it.copy(age = text.trim()) } }
+    fun updateWeight(text: String) { _state.update { it.copy(weight = text.trim()) } }
+    fun changeGender(gender: Gender) { _state.update { it.copy(gender = gender) } }
+    fun changeWorkoutId(workoutId: Int) { _state.update { it.copy(workoutId = workoutId) } }
 
     fun toggleExerciseSelection(exerciseId: Int) {
         if (_state.value.toggledExerciseIds.contains(exerciseId)) {
@@ -64,10 +52,8 @@ class SignUpViewModel @Inject constructor(
     //region Методы загрузки данных
     private fun loadWorkoutPlans() {
         viewModelScope.launch {
-            _appDb.workoutPlanDao.getAll().collect() { plans ->
-                _state.update {
-                    it.copy(workoutPlans = plans)
-                }
+            _appDb.workoutPlanDao.getAll().collect { plans ->
+                _state.update { it.copy(workoutPlans = plans) }
             }
         }
     }
@@ -99,7 +85,7 @@ class SignUpViewModel @Inject constructor(
         _state.update {
             it.copy(
                 fieldsErrorState = if (_state.value.username.isBlank()) {
-                    it.fieldsErrorState.copy(username = Constansts.REQUIRED_FIELD_MESSAGE)
+                    it.fieldsErrorState.copy(username = Constants.REQUIRED_FIELD_MESSAGE)
                 } else {
                     it.fieldsErrorState.copy(username = "")
                 }
@@ -111,14 +97,14 @@ class SignUpViewModel @Inject constructor(
         _state.update {
             it.copy(
                 fieldsErrorState = when {
-                    _state.value.age.isBlank() -> it.fieldsErrorState.copy(age = Constansts.REQUIRED_FIELD_MESSAGE)
+                    _state.value.age.isBlank() -> it.fieldsErrorState.copy(age = Constants.REQUIRED_FIELD_MESSAGE)
                     else -> {
                         try {
-                            if (_state.value.age.toInt() !in Constansts.MIN_AGE..Constansts.MAX_AGE)
-                                it.fieldsErrorState.copy(age = Constansts.WRONG_AGE_MESSAGE)
+                            if (_state.value.age.toInt() !in Constants.MIN_AGE..Constants.MAX_AGE)
+                                it.fieldsErrorState.copy(age = Constants.WRONG_AGE_MESSAGE)
                             else it.fieldsErrorState.copy(age = "")
                         } catch (_: Exception) {
-                            it.fieldsErrorState.copy(age = Constansts.INVALID_FIELD_VALUE_MESSAGE)
+                            it.fieldsErrorState.copy(age = Constants.INVALID_FIELD_VALUE_MESSAGE)
                         }
                     }
                 }
@@ -130,14 +116,14 @@ class SignUpViewModel @Inject constructor(
         _state.update {
             it.copy(
                 fieldsErrorState = when {
-                    _state.value.weight.isBlank() -> it.fieldsErrorState.copy(weight = Constansts.REQUIRED_FIELD_MESSAGE)
+                    _state.value.weight.isBlank() -> it.fieldsErrorState.copy(weight = Constants.REQUIRED_FIELD_MESSAGE)
                     else -> {
                         try {
-                            if (it.weight.toFloat() !in Constansts.MIN_WEIGHT..Constansts.MAX_WEIGHT) {
-                                it.fieldsErrorState.copy(weight = Constansts.WRONG_WEIGHT_MESSAGE)
+                            if (it.weight.toFloat() !in Constants.MIN_WEIGHT..Constants.MAX_WEIGHT) {
+                                it.fieldsErrorState.copy(weight = Constants.WRONG_WEIGHT_MESSAGE)
                             } else it.fieldsErrorState.copy(weight = "")
                         } catch (_: Exception) {
-                            it.fieldsErrorState.copy(weight = Constansts.INVALID_FIELD_VALUE_MESSAGE)
+                            it.fieldsErrorState.copy(weight = Constants.INVALID_FIELD_VALUE_MESSAGE)
                         }
                     }
                 }
@@ -158,7 +144,7 @@ class SignUpViewModel @Inject constructor(
             return true
         }
 
-        _state.update { it.copy(signUpState = SignUpState.Error(Constansts.INVALID_FIELDS_DATA_MESSAGE)) }
+        _state.update { it.copy(signUpState = SignUpState.Error(Constants.INVALID_FIELDS_DATA_MESSAGE)) }
         return false
     }
     //endregion
@@ -166,30 +152,14 @@ class SignUpViewModel @Inject constructor(
     //region Основная логика
     fun createAccount() {
         viewModelScope.launch {
-            try {
-                val phaseOfCycleId = _appDb.workoutPlanDao.getPhasesIds(_state.value.workoutId!!)
-                    .phasesOfCycle[0].phaseOfCycleId!!
-
-                val user = User(
-                    username = _state.value.username,
-                    age = _state.value.age.toInt(),
-                    gender = _state.value.gender,
-                    weight = _state.value.weight.toFloat(),
-                    workoutPlanOwnerId = _state.value.workoutId!!,
-                    phaseOfCycleOwnerId = phaseOfCycleId,
-                )
-
-                val userId = _appDb.userDao.create(user)
-                assignUserIdToExercises(userId.toInt())
-
-                _state.value.selectedExercisesWithNames.forEach { exerciseWithName ->
-                    _appDb.selectedExerciseDao.create(exerciseWithName.selectedExercise)
-                }
-
-                _state.update { it.copy(signUpState = SignUpState.Success) }
-            } catch (e: Exception) {
-                _state.update { it.copy(signUpState = SignUpState.Error(e.message.toString())) }
-            }
+//            _createAccountUseCase.invoke(
+//                workoutId = _state.value.workoutId!!,
+//                username = _state.value.username,
+//                age = _state.value.age.toInt(),
+//                weight = _state.value.weight.toFloat(),
+//                gender = _state.value.gender,
+//                exercisesWithCharacteristics =
+//            )
         }
     }
 
@@ -232,15 +202,12 @@ class SignUpViewModel @Inject constructor(
     }
 
     private fun assignUserIdToExercises(userId: Int) {
-        viewModelScope.launch {
-            _state.update {
-                val updatedList = it.selectedExercisesWithNames.map { exerciseWithName ->
-                    exerciseWithName.selectedExercise.userOwnerId = userId
-                    exerciseWithName
-                }
-
-                it.copy(selectedExercisesWithNames = updatedList)
+        _state.update {
+            val updatedList = it.selectedExercisesWithNames.map { exerciseWithName ->
+                exerciseWithName.selectedExercise.userOwnerId = userId
+                exerciseWithName
             }
+            it.copy(selectedExercisesWithNames = updatedList)
         }
     }
     //endregion
@@ -278,7 +245,7 @@ sealed class SignUpState {
     data class Error(val message: String) : SignUpState()
 }
 
-object Constansts {
+object Constants {
     val MIN_AGE = 10
     val MAX_AGE = 120
     val MIN_WEIGHT = 20f
@@ -288,6 +255,5 @@ object Constansts {
     val WRONG_WEIGHT_MESSAGE = "Значение должно быть больше $MIN_WEIGHT и меньше $MAX_WEIGHT"
     val INVALID_FIELD_VALUE_MESSAGE = "Некорректное значение"
     val INVALID_FIELDS_DATA_MESSAGE = "Некорректные данные для создания аккаунта"
-    val INVALID_WORKOUT_ID_MESSAGE = "Выбран некорректный план тренировок"
     val genderVariants = listOf(Gender.Male, Gender.Female)
 }

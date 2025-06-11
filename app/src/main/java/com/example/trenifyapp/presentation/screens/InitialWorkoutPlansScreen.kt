@@ -17,6 +17,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.trenifyapp.data.entities.WorkoutPlan
+import com.example.trenifyapp.presentation.components.ConditionButton
+import com.example.trenifyapp.presentation.components.WorkoutPlanItem
 import com.example.trenifyapp.presentation.viewmodels.SignUpViewModel
 import com.example.trenifyapp.ui.theme.Orange
 
@@ -43,7 +45,6 @@ fun InitialWorkoutPlansScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            // Заголовок приложения
             Text(
                 text = "Trenify",
                 fontSize = 32.sp,
@@ -52,7 +53,6 @@ fun InitialWorkoutPlansScreen(
                 modifier = Modifier.padding(bottom = 32.dp)
             )
 
-            // Инструкция для пользователя
             Text(
                 text = "Выберите план тренировок",
                 fontSize = 24.sp,
@@ -62,7 +62,6 @@ fun InitialWorkoutPlansScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Список планов с отступом снизу, чтобы не перекрывался кнопкой
             LazyColumn(
                 modifier = Modifier
                     .weight(1f)
@@ -81,59 +80,12 @@ fun InitialWorkoutPlansScreen(
         }
 
 
-        Button(
+        ConditionButton(
             onClick = navigateToWorkoutStatsScreen,
             modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 30.dp)
-                .fillMaxWidth()
-                .height(56.dp),
-            enabled = state.workoutId != null,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Orange,
-                contentColor = Color.White,
-                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        ) {
-            Text("Продолжить")
-        }
-    }
-}
-
-@Composable
-private fun WorkoutPlanItem(
-    plan: WorkoutPlan,
-    isSelected: Boolean,
-    onSelect: () -> Unit,
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                onSelect()
-            },
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) Orange else MaterialTheme.colorScheme.surface
-        ),
-        shape = RoundedCornerShape(16.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = plan.name,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Medium,
-                color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface
-            )
-            if (plan.description.isNotBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = plan.description,
-                    fontSize = 14.sp,
-                    color = if (isSelected) Color.White.copy(0.8f)
-                    else MaterialTheme.colorScheme.onSurface.copy(0.8f)
-                )
-            }
-        }
+                .align(Alignment.BottomCenter),
+            enabledCondition = state.workoutId != null,
+            text = "Продолжить"
+        )
     }
 }

@@ -15,8 +15,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.trenifyapp.presentation.viewmodels.Constansts
-import com.example.trenifyapp.presentation.viewmodels.SignUpState
+import com.example.trenifyapp.presentation.components.DefaultButton
+import com.example.trenifyapp.presentation.viewmodels.Constants
 import com.example.trenifyapp.presentation.viewmodels.SignUpViewModel
 import com.example.trenifyapp.ui.theme.Orange
 
@@ -92,7 +92,7 @@ fun InitialUserDataScreen(
         )
 
         Row {
-            Constansts.genderVariants.forEach { gender ->
+            Constants.genderVariants.forEach { gender ->
                 Button(
                     onClick = { viewModel.changeGender(gender) },
                     colors = ButtonDefaults.buttonColors(
@@ -105,21 +105,13 @@ fun InitialUserDataScreen(
             }
         }
 
-        Button(
+        DefaultButton(
             onClick = {
                 if (viewModel.fieldsIsValid()) {
                     navigateToWorkoutPlansScreen()
                 }
             },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Orange,
-                contentColor = Color.White
-            )
-        ) {
-            Text("Продолжить")
-        }
+            text = "Продолжить"
+        )
     }
 }
