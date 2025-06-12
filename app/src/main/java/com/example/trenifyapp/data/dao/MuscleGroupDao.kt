@@ -20,4 +20,7 @@ interface MuscleGroupDao {
     @Transaction
     @Query("SELECT * FROM muscle_groups")
     fun getAllWithExercises(): Flow<List<MuscleGroupWithExercises>>
+
+    @Query("SELECT * FROM muscle_groups WHERE muscle_group_id = :id")
+    suspend fun getById(id: Int): MuscleGroup
 }

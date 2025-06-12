@@ -14,14 +14,14 @@ import com.example.trenifyapp.ui.theme.Orange
 
 @Composable
 fun DefaultButton(
+    modifier: Modifier = Modifier,
     text: String,
     backgroundColor: Color = Orange,
     textColor: Color = Color.White,
     onClick: () -> Unit
 ) {
     Button(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
             .height(56.dp),
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(

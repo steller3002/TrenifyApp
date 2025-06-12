@@ -16,7 +16,7 @@ import com.example.trenifyapp.ui.theme.Orange
 
 @Composable
 fun ConditionButton(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit,
     enabledCondition: Boolean,
     backgroundColor: Color = Orange,
@@ -28,8 +28,6 @@ fun ConditionButton(
     Button(
         onClick = onClick,
         modifier = modifier
-            .padding(bottom = 30.dp)
-            .fillMaxWidth()
             .height(56.dp),
         enabled = enabledCondition,
         colors = ButtonDefaults.buttonColors(
@@ -47,7 +45,6 @@ fun ConditionButton(
 @Preview
 private fun ConditionButtonPreview() {
     ConditionButton(
-        modifier = Modifier,
         enabledCondition = true,
         onClick = { return@ConditionButton },
         text = "Продолжить"
