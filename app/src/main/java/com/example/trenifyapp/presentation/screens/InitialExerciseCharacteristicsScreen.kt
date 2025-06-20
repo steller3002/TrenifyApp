@@ -36,18 +36,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.trenifyapp.presentation.components.ScreenTitle
+import com.example.trenifyapp.presentation.components.TrenifyTitle
 import com.example.trenifyapp.presentation.dataclasses.SelectedExerciseWithName
 import com.example.trenifyapp.presentation.viewmodels.SignUpViewModel
 import com.example.trenifyapp.ui.theme.Orange
 
 @Composable
-fun InitialSettingUpExercisesScreen(
+fun InitialExerciseCharacteristicsScreen(
     viewModel: SignUpViewModel,
     navigateToAccountsScreen: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     val focusManager = LocalFocusManager.current
-    val selectedExercisesWithNames = state.selectedExercisesWithNames
 
     Box(
         modifier = Modifier
@@ -62,55 +63,26 @@ fun InitialSettingUpExercisesScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            Text(
-                text = "Trenify",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = Orange,
-                modifier = Modifier.padding(bottom = 32.dp)
-            )
-
-            Text(
-                text = "Настройка упражнений (${selectedExercisesWithNames.size})",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(bottom = 16.dp)
+            TrenifyTitle()
+            ScreenTitle(
+                modifier = Modifier.padding(bottom = 15.dp),
+                text = "Настройка упражнений"
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            if (selectedExercisesWithNames.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Вы не выбрали ни одного упражнения",
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    contentPadding = PaddingValues(bottom = 96.dp, top = 8.dp)
-                ) {
-                    items(selectedExercisesWithNames) { exercise ->
-                        ConfigurableExerciseItem(
-                            exercise = exercise,
-                            onUpdate = { updatedExercise ->
-                                viewModel.updateSelectedExercisesWithNames(updatedExercise)
-                            }
-                        )
-                    }
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(bottom = 96.dp, top = 8.dp)
+            ) {
+                items(state.toggledExerciseIds.toList()) { id ->
+                    Text(id.toString())
                 }
             }
         }
-
 
         Button(
             onClick = {

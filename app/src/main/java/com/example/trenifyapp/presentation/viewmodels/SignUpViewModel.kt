@@ -6,6 +6,8 @@ import com.example.trenifyapp.data.AppDb
 import com.example.trenifyapp.data.entities.Exercise
 import com.example.trenifyapp.data.entities.SelectedExercise
 import com.example.trenifyapp.data.entities.WorkoutPlan
+import com.example.trenifyapp.domain.dataclasses.ExerciseCharacteristics
+import com.example.trenifyapp.domain.dataclasses.ExerciseWithCharacteristics
 import com.example.trenifyapp.domain.enums.Gender
 import com.example.trenifyapp.domain.usecases.CreateAccountUseCase
 import com.example.trenifyapp.presentation.dataclasses.SelectedExerciseWithName
@@ -26,37 +28,54 @@ class SignUpViewModel @Inject constructor(
     init {
         loadWorkoutPlans()
         loadMuscleGroupsAndExercises()
-        loadExercises()
     }
 
     private var _state = MutableStateFlow(SignUpScreenState())
     val state = _state.asStateFlow()
 
     //region Методы обновления UI
-    fun updateUsername(text: String) { _state.update { it.copy(username = text) } }
-    fun updateAge(text: String) { _state.update { it.copy(age = text) } }
-    fun updateWeight(text: String) { _state.update { it.copy(weight = text) } }
-    fun changeGender(gender: Gender) { _state.update { it.copy(gender = gender) } }
-    fun changeWorkoutId(workoutId: Int) { _state.update { it.copy(workoutId = workoutId) } }
-
-    fun toggleExerciseSelection(exerciseId: Int, muscleGroupName: String) {
-        val currentExercisesNumber = _state.value.muscleGroupNamesWithExerciseNumbers[muscleGroupName]!!
-
-        if (_state.value.toggledExerciseIds.contains(exerciseId)) {
-            _state.update { it.copy(
-                toggledExerciseIds = it.toggledExerciseIds.minus(exerciseId),
-                muscleGroupNamesWithExerciseNumbers = it.muscleGroupNamesWithExerciseNumbers
-                    .toMutableMap().apply { this[muscleGroupName] = currentExercisesNumber - 1 }
-                ) }
-        } else {
-            _state.update { it.copy(
-                toggledExerciseIds = it.toggledExerciseIds.plus(exerciseId),
-                muscleGroupNamesWithExerciseNumbers = it.muscleGroupNamesWithExerciseNumbers
-                    .toMutableMap().apply { this[muscleGroupName] = currentExercisesNumber + 1 }
-            ) }
-        }
+    fun updateUsername(text: String) {
+        _state.update { it.copy(username = text) }
     }
 
+    fun updateAge(text: String) {
+        _state.update { it.copy(age = text) }
+    }
+
+    fun updateWeight(text: String) {
+        _state.update { it.copy(weight = text) }
+    }
+
+    fun changeGender(gender: Gender) {
+        _state.update { it.copy(gender = gender) }
+    }
+
+    fun changeWorkoutId(workoutId: Int) {
+        _state.update { it.copy(workoutId = workoutId) }
+    }
+
+    fun toggleExerciseSelection(exerciseId: Int, muscleGroupName: String) {
+        val currentExercisesNumber =
+            _state.value.muscleGroupNamesWithExerciseNumbers[muscleGroupName]!!
+
+        if (_state.value.toggledExerciseIds.contains(exerciseId)) {
+            _state.update {
+                it.copy(
+                    toggledExerciseIds = it.toggledExerciseIds.minus(exerciseId),
+                    muscleGroupNamesWithExerciseNumbers = it.muscleGroupNamesWithExerciseNumbers
+                        .toMutableMap().apply { this[muscleGroupName] = currentExercisesNumber - 1 }
+                )
+            }
+        } else {
+            _state.update {
+                it.copy(
+                    toggledExerciseIds = it.toggledExerciseIds.plus(exerciseId),
+                    muscleGroupNamesWithExerciseNumbers = it.muscleGroupNamesWithExerciseNumbers
+                        .toMutableMap().apply { this[muscleGroupName] = currentExercisesNumber + 1 }
+                )
+            }
+        }
+    }
     //endregion
 
     //region Методы загрузки данных
@@ -74,21 +93,17 @@ class SignUpViewModel @Inject constructor(
             val muscleGroupIdsWithExercisesNumber = mutableMapOf<String, Int>()
 
             muscleGroupsWithExercises.forEach { groupWithExercise ->
-                muscleGroupNamesWithExercises[groupWithExercise.muscleGroup.name] = groupWithExercise.exercises
+                muscleGroupNamesWithExercises[groupWithExercise.muscleGroup.name] =
+                    groupWithExercise.exercises
                 muscleGroupIdsWithExercisesNumber[groupWithExercise.muscleGroup.name] = 0
             }
 
-            _state.update { it.copy(
-                muscleGroupNamesWithExercises = muscleGroupNamesWithExercises,
-                muscleGroupNamesWithExerciseNumbers = muscleGroupIdsWithExercisesNumber)
+            _state.update {
+                it.copy(
+                    muscleGroupNamesWithExercises = muscleGroupNamesWithExercises,
+                    muscleGroupNamesWithExerciseNumbers = muscleGroupIdsWithExercisesNumber
+                )
             }
-        }
-    }
-
-    private fun loadExercises() {
-        viewModelScope.launch {
-            val exercises = _appDb.exerciseDao.getAll().first()
-            _state.update { it.copy(exercises = exercises) }
         }
     }
     //endregion
@@ -110,7 +125,9 @@ class SignUpViewModel @Inject constructor(
         _state.update {
             it.copy(
                 fieldsErrorState = when {
-                    _state.value.age.trim().isBlank() -> it.fieldsErrorState.copy(age = Constants.REQUIRED_FIELD_MESSAGE)
+                    _state.value.age.trim()
+                        .isBlank() -> it.fieldsErrorState.copy(age = Constants.REQUIRED_FIELD_MESSAGE)
+
                     else -> {
                         try {
                             if (it.age.trim().toInt() !in Constants.MIN_AGE..Constants.MAX_AGE)
@@ -129,10 +146,14 @@ class SignUpViewModel @Inject constructor(
         _state.update {
             it.copy(
                 fieldsErrorState = when {
-                    _state.value.weight.trim().isBlank() -> it.fieldsErrorState.copy(weight = Constants.REQUIRED_FIELD_MESSAGE)
+                    _state.value.weight.trim()
+                        .isBlank() -> it.fieldsErrorState.copy(weight = Constants.REQUIRED_FIELD_MESSAGE)
+
                     else -> {
                         try {
-                            if (it.weight.trim().toFloat() !in Constants.MIN_WEIGHT..Constants.MAX_WEIGHT) {
+                            if (it.weight.trim()
+                                    .toFloat() !in Constants.MIN_WEIGHT..Constants.MAX_WEIGHT
+                            ) {
                                 it.fieldsErrorState.copy(weight = Constants.WRONG_WEIGHT_MESSAGE)
                             } else it.fieldsErrorState.copy(weight = "")
                         } catch (_: Exception) {
@@ -150,87 +171,52 @@ class SignUpViewModel @Inject constructor(
         validateWeight()
 
         if (_state.value.fieldsErrorState.isValid()) return true
-
-        _state.update { it.copy(signUpState = SignUpState.Error(Constants.INVALID_FIELDS_DATA_MESSAGE)) }
         return false
     }
 
     fun checkNumberOfExercises() {
         if (_state.value.muscleGroupNamesWithExerciseNumbers.any { it.value < Constants.MIN_EXERCISES_NUMBER }) {
-            _state.update { it.copy(fieldsErrorState = it.fieldsErrorState.copy(
-                numberOfExercises = Constants.NOT_ENOUGH_EXERCISE_MESSAGE
-            )) }
+            _state.update {
+                it.copy(
+                    fieldsErrorState = it.fieldsErrorState.copy(
+                        numberOfExercises = Constants.NOT_ENOUGH_EXERCISE_MESSAGE
+                    )
+                )
+            }
             return
         }
 
-        _state.update { it.copy(fieldsErrorState = it.fieldsErrorState.copy(
-            numberOfExercises = ""
-        )) }
+        _state.update { it.copy(fieldsErrorState = it.fieldsErrorState.copy(numberOfExercises = "")) }
     }
     //endregion
 
     //region Основная логика
     fun createAccount() {
         viewModelScope.launch {
-//            _createAccountUseCase.invoke(
-//                workoutId = _state.value.workoutId!!,
-//                username = _state.value.username,
-//                age = _state.value.age.toInt(),
-//                weight = _state.value.weight.toFloat(),
-//                gender = _state.value.gender,
-//                exercisesWithCharacteristics =
-//            )
+//            try {
+//                val exerciseWithCharacteristics = _state.value.toggledExerciseIds.map { id ->
+//                    val exercise = _appDb.exerciseDao.getById(id)
+//                    ExerciseWithCharacteristics(
+//                        exercise = exercise,
+//                        characteristics = ExerciseCharacteristics(
+//
+//                        )
+//                    )
+//                }
+//
+//                _createAccountUseCase.invoke(
+//                    workoutId = _state.value.workoutId!!,
+//                    username = _state.value.username,
+//                    age = _state.value.age.toInt(),
+//                    weight = _state.value.weight.toFloat(),
+//                    gender = _state.value.gender,
+//                    exercisesWithCharacteristics =
+//                )
+//            }
+//        }
         }
+        //endregion
     }
-
-    fun createSelectedExercisesWithNames() {
-        viewModelScope.launch {
-            try {
-                val selectedExercisesWithNames = _state.value.toggledExerciseIds.map { id ->
-                    SelectedExerciseWithName(
-                        SelectedExercise(
-                        selectedExerciseId = null,
-                        exerciseOwnerId = id,
-                        repeatsNumber = 8,
-                        userOwnerId = -1,
-                        setsNumber = 3,
-                        currentWorkingWeight = 20f),
-                        exerciseName = _appDb.exerciseDao.getNameById(id))
-                }
-
-                _state.update { it.copy(selectedExercisesWithNames = selectedExercisesWithNames) }
-            }
-            catch (e: Exception) {
-                _state.update { it.copy(signUpState = SignUpState.Error(
-                    "Error while load selected exercises: ${e.message}")) }
-            }
-        }
-    }
-
-    fun updateSelectedExercisesWithNames(selectedExerciseWithName: SelectedExerciseWithName) {
-        _state.update {
-            val newList = it.selectedExercisesWithNames.map { exercise ->
-                if (exercise.selectedExercise.exerciseOwnerId == selectedExerciseWithName.selectedExercise.exerciseOwnerId) {
-                    selectedExerciseWithName
-                }
-                else {
-                    exercise
-                }
-            }
-            it.copy(selectedExercisesWithNames = newList)
-        }
-    }
-
-    private fun assignUserIdToExercises(userId: Int) {
-        _state.update {
-            val updatedList = it.selectedExercisesWithNames.map { exerciseWithName ->
-                exerciseWithName.selectedExercise.userOwnerId = userId
-                exerciseWithName
-            }
-            it.copy(selectedExercisesWithNames = updatedList)
-        }
-    }
-    //endregion
 }
 
 
@@ -240,14 +226,12 @@ data class SignUpScreenState(
     val weight: String = "",
     val gender: Gender = Gender.Male,
     val workoutId: Int? = null,
-    val signUpState: SignUpState = SignUpState.Initial,
     val workoutPlans: List<WorkoutPlan> = listOf(),
     val muscleGroupNamesWithExercises: MutableMap<String, List<Exercise>> = mutableMapOf(),
     val muscleGroupNamesWithExerciseNumbers: MutableMap<String, Int> = mutableMapOf(),
-    val selectedExercisesWithNames: List<SelectedExerciseWithName> = listOf(),
-    val exercises: List<Exercise> = listOf(),
     val toggledExerciseIds: Set<Int> = setOf(),
-    val fieldsErrorState: ErrorsState = ErrorsState()
+    val selectedExercises: List<SelectedExercise> = listOf(),
+    val fieldsErrorState: ErrorsState = ErrorsState(),
 )
 
 data class ErrorsState(
@@ -259,12 +243,6 @@ data class ErrorsState(
     fun isValid(): Boolean {
         return username.isEmpty() && age.isEmpty() && weight.isEmpty()
     }
-}
-
-sealed class SignUpState {
-    object Initial : SignUpState()
-    object Success : SignUpState()
-    data class Error(val message: String) : SignUpState()
 }
 
 object Constants {

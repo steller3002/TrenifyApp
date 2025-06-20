@@ -1,7 +1,7 @@
 package com.example.trenifyapp.presentation.navigation
 
 sealed class ScreenRoute(val route: String) {
-    data object AccountSelectionScreen : ScreenRoute("accountSelection")
+    data object AccountsScreen : ScreenRoute("accountSelection")
 
     data object InitialUserDataScreen : ScreenRoute("initialUserData")
 

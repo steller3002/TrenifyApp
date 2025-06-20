@@ -14,7 +14,7 @@ fun ValidatedTextField(
     value: String,
     onValueChanged: (String) -> Unit,
     label: String,
-    errorValue: String,
+    errorValue: String?,
     keyboardType: KeyboardType = KeyboardType.Text
 ) {
     OutlinedTextField(
@@ -22,9 +22,9 @@ fun ValidatedTextField(
         value = value,
         onValueChange = onValueChanged,
         label = { Text(label) },
-        isError = errorValue != "",
+        isError = errorValue != null,
         supportingText = {
-            if (errorValue != "") {
+            if (errorValue != null) {
                 Text(errorValue)
             }
         },
@@ -37,11 +37,10 @@ fun ValidatedTextField(
 private fun ValidatedTextFieldPreview() {
     ValidatedTextField(
         value = "Тест",
-        onValueChanged = { updateText(value = "test") },
+        onValueChanged = { updateText() },
         label = "Тестовый textField",
         errorValue = "Тестовая ошибка"
     )
 }
 
-private fun updateText(value: String) {
-}
+private fun updateText(value: String = "test") = Unit

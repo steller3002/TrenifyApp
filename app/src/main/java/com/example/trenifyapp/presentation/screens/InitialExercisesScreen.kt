@@ -47,7 +47,7 @@ fun InitialExercisesScreen(
                 modifier = Modifier.padding(bottom = 5.dp)
             )
             Text(
-                modifier = Modifier.padding(bottom = 16.dp),
+                modifier = Modifier.padding(bottom = 15.dp),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
                 text = "Минимум ${Constants.MIN_EXERCISES_NUMBER} на каждую группу мышц"
@@ -91,7 +91,6 @@ fun InitialExercisesScreen(
         ConditionButton(
             onClick = {
                 navigateToSettingUpExercisesScreen()
-                viewModel.createSelectedExercisesWithNames()
             },
             modifier = Modifier
                 .fillMaxWidth()

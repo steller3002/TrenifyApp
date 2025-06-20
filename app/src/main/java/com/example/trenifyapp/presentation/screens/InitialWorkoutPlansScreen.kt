@@ -46,7 +46,7 @@ fun InitialWorkoutPlansScreen(
             TrenifyTitle()
             ScreenTitle(
                 text = "Выберите план тренировок",
-                modifier = Modifier.padding(bottom = 5.dp)
+                modifier = Modifier.padding(bottom = 15.dp)
             )
 
             Spacer(modifier = Modifier.height(8.dp))
