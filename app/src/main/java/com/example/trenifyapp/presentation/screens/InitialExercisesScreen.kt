@@ -1,6 +1,5 @@
 package com.example.trenifyapp.presentation.screens
 
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -8,33 +7,26 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.trenifyapp.presentation.components.ConditionButton
 import com.example.trenifyapp.presentation.components.ExerciseItem
 import com.example.trenifyapp.presentation.components.ScreenTitle
 import com.example.trenifyapp.presentation.components.TrenifyTitle
-import com.example.trenifyapp.presentation.viewmodels.Constants
-import com.example.trenifyapp.presentation.viewmodels.SignUpViewModel
+import com.example.trenifyapp.presentation.dataclasses.ToggledExerciseInfo
+import com.example.trenifyapp.presentation.viewmodels.RegistrationViewModel
 
 @Composable
 fun InitialExercisesScreen(
-    viewModel: SignUpViewModel,
+    viewModel: RegistrationViewModel,
     navigateToSettingUpExercisesScreen: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
-    val focusManager = LocalFocusManager.current
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(24.dp)
-            .pointerInput(Unit) {
-                detectTapGestures(onTap = { focusManager.clearFocus() })
-            }
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -50,55 +42,67 @@ fun InitialExercisesScreen(
                 modifier = Modifier.padding(bottom = 15.dp),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
-                text = "Минимум ${Constants.MIN_EXERCISES_NUMBER} на каждую группу мышц"
+                text = "Минимум ${state.minExercisesOnGroup} на каждую группу мышц"
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(bottom = 96.dp, top = 8.dp)
-            ) {
-                state.muscleGroupNamesWithExercises.keys.forEach { muscleGroupName ->
-                    val exercises = state.muscleGroupNamesWithExercises[muscleGroupName] ?: emptyList()
+            if (state.dataForRegistration == null) {
+                Text("Возникла ошибка :(")
+            }
+            else {
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(bottom = 96.dp, top = 8.dp)
+                ) {
+                    state.dataForRegistration!!.muscleGroupNamesWithExercises.forEach { kvPair ->
+                        val muscleGroupName = kvPair.key
 
-                    item {
-                        Text(
-                            text = muscleGroupName,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Medium,
-                            modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
-                        )
-                    }
+                        val exercises = state.dataForRegistration!!.muscleGroupNamesWithExercises[muscleGroupName]
+                            ?: emptyList()
 
-                    items(exercises.sortedBy { it.name }) { exercise ->
-                        ExerciseItem(
-                            exercise = exercise,
-                            isSelected = state.toggledExerciseIds.contains(exercise.exerciseId),
-                            onToggleSelection = {
-                                viewModel.toggleExerciseSelection(exercise.exerciseId!!, muscleGroupName)
-                                viewModel.checkNumberOfExercises()
-                            }
-                        )
+                        item {
+                            Text(
+                                text = muscleGroupName,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
+                            )
+                        }
+
+                        items(exercises.sortedBy { it.name }) { exercise ->
+                            val toggledExerciseInfo = ToggledExerciseInfo(
+                                id = exercise.exerciseId!!,
+                                name = exercise.name
+                            )
+
+                            ExerciseItem(
+                                exercise = exercise,
+                                isSelected = state.userData.toggledExercises.contains(toggledExerciseInfo),
+                                onToggleSelection = {
+                                    viewModel.toggleExercise(toggledExerciseInfo)
+                                }
+                            )
+                        }
                     }
                 }
             }
         }
 
-        ConditionButton(
-            onClick = {
-                navigateToSettingUpExercisesScreen()
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 30.dp)
-                .align(Alignment.BottomCenter),
-            enabledCondition = state.fieldsErrorState.numberOfExercises == "" &&
-                state.toggledExerciseIds.isNotEmpty(),
-            text = "Продолжить"
-        )
+//        ConditionButton(
+//            onClick = {
+//                navigateToSettingUpExercisesScreen()
+//            },
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(bottom = 30.dp)
+//                .align(Alignment.BottomCenter),
+//            enabledCondition = state.fieldsErrorState.numberOfExercises == "" &&
+//                state.toggledExerciseIds.isNotEmpty(),
+//            text = "Продолжить"
+//        )
     }
 }

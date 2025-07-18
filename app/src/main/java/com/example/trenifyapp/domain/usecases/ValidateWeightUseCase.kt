@@ -9,7 +9,7 @@ class ValidateWeightUseCase @Inject constructor() {
     private val _minWeight = 10f
     private val _maxWeight = 450f
 
-    operator fun invoke(weightAsString: String): Result<Float> {
+    operator fun invoke(weightAsString: String): Result<Unit> {
         if (weightAsString.isBlank()) {
             return Result.failure(RequiredFieldException())
         }
@@ -21,7 +21,7 @@ class ValidateWeightUseCase @Inject constructor() {
                 return Result.failure(OutOfBoundsException(_minWeight, _maxWeight))
             }
 
-            return Result.success(weightAsFloat)
+            return Result.success(Unit)
         }
         catch (_: Exception) {
             return Result.failure(InvalidFieldValueException())

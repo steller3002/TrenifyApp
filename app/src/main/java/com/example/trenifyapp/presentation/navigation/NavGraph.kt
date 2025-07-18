@@ -14,11 +14,10 @@ import com.example.trenifyapp.presentation.screens.AccountSelectionScreen
 import com.example.trenifyapp.presentation.screens.InitialUserDataScreen
 import com.example.trenifyapp.presentation.screens.InitialWorkoutPlansScreen
 import com.example.trenifyapp.presentation.screens.InitialExercisesScreen
-import com.example.trenifyapp.presentation.screens.InitialExerciseCharacteristicsScreen
+import com.example.trenifyapp.presentation.screens.InitialExercisesParamsScreen
 import com.example.trenifyapp.presentation.screens.UserMainScreen
 import com.example.trenifyapp.presentation.viewmodels.AccountSelectionViewModel
-import com.example.trenifyapp.presentation.viewmodels.InitialUserDataViewModel
-import com.example.trenifyapp.presentation.viewmodels.SignUpViewModel
+import com.example.trenifyapp.presentation.viewmodels.RegistrationViewModel
 
 @Composable
 fun NavGraph(
@@ -46,7 +45,7 @@ fun NavGraph(
             route = NavigationRoute.Auth.route
         ) {
             composable(ScreenRoute.InitialUserDataScreen.route) {
-                val viewModel = it.sharedViewModel<InitialUserDataViewModel>(navHostController)
+                val viewModel = it.sharedViewModel<RegistrationViewModel>(navHostController)
 
                 InitialUserDataScreen(
                     viewModel = viewModel,
@@ -55,7 +54,8 @@ fun NavGraph(
             }
 
             composable(ScreenRoute.InitialWorkoutPlan.route) {
-                val viewModel = it.sharedViewModel<SignUpViewModel>(navHostController)
+                val viewModel = hiltViewModel<RegistrationViewModel>()
+
                 InitialWorkoutPlansScreen(
                     viewModel = viewModel,
                     navigateToWorkoutStatsScreen = {
@@ -65,7 +65,8 @@ fun NavGraph(
             }
 
             composable(ScreenRoute.InitialExercisesScreen.route) {
-                val viewModel = it.sharedViewModel<SignUpViewModel>(navHostController)
+                val viewModel = it.sharedViewModel<RegistrationViewModel>(navHostController)
+
                 InitialExercisesScreen(
                     viewModel = viewModel,
                     navigateToSettingUpExercisesScreen = {
@@ -75,8 +76,9 @@ fun NavGraph(
             }
 
             composable(ScreenRoute.InitialSettingUpExercisesScreen.route) {
-                val viewModel = it.sharedViewModel<SignUpViewModel>(navHostController)
-                InitialExerciseCharacteristicsScreen (
+                val viewModel = it.sharedViewModel<RegistrationViewModel>(navHostController)
+
+                InitialExercisesParamsScreen (
                     viewModel = viewModel,
                     navigateToAccountsScreen = {
                         navHostController.navigate(ScreenRoute.AccountsScreen.route)

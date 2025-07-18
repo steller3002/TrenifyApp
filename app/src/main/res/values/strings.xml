@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">TrenifyApp</string>
+    <string name="initial_user_data_screen_title">Создание аккаунта</string>
+    <string name="username_field">Имя пользователя</string>
+    <string name="age_field">Возраст</string>
+    <string name="weight_field">Вес</string>
+    <string name="continue_button">Продолжить</string>
 </resources>

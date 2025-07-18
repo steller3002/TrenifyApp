@@ -39,12 +39,12 @@ import androidx.compose.ui.unit.sp
 import com.example.trenifyapp.presentation.components.ScreenTitle
 import com.example.trenifyapp.presentation.components.TrenifyTitle
 import com.example.trenifyapp.presentation.dataclasses.SelectedExerciseWithName
-import com.example.trenifyapp.presentation.viewmodels.SignUpViewModel
+import com.example.trenifyapp.presentation.viewmodels.RegistrationViewModel
 import com.example.trenifyapp.ui.theme.Orange
 
 @Composable
-fun InitialExerciseCharacteristicsScreen(
-    viewModel: SignUpViewModel,
+fun InitialExercisesParamsScreen(
+    viewModel: RegistrationViewModel,
     navigateToAccountsScreen: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
@@ -78,15 +78,20 @@ fun InitialExerciseCharacteristicsScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(bottom = 96.dp, top = 8.dp)
             ) {
-                items(state.toggledExerciseIds.toList()) { id ->
-                    Text(id.toString())
+                items(state.userData.toggledExercises) { exercise ->
+//                    ExerciseParamsItem(
+//                        exerciseName = exercise.name,
+//                        sets = "3",
+//                        weight = "20.0",
+//                        isSelected = false,
+//                        setsErrorValue =
+//                    )
                 }
             }
         }
 
         Button(
             onClick = {
-                viewModel.createAccount()
                 navigateToAccountsScreen()
             },
             modifier = Modifier
