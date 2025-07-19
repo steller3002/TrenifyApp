@@ -1,7 +1,7 @@
 package com.example.trenifyapp.domain.usecases
 
 import com.example.trenifyapp.domain.exceptions.InvalidFieldValueException
-import com.example.trenifyapp.domain.exceptions.OutOfBoundsException
+import com.example.trenifyapp.domain.exceptions.ValueOutOfBoundsException
 import com.example.trenifyapp.domain.exceptions.RequiredFieldException
 import javax.inject.Inject
 
@@ -18,7 +18,7 @@ class ValidateSetsUseCase @Inject constructor() {
             val setsAsInt = setsAsString.toInt()
 
             if (setsAsInt !in _minSets.._maxSets) {
-                return Result.failure(OutOfBoundsException(_minSets.toFloat(), _maxSets.toFloat()))
+                return Result.failure(ValueOutOfBoundsException(_minSets.toFloat(), _maxSets.toFloat()))
             }
 
             return Result.success(Unit)

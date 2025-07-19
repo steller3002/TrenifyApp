@@ -15,14 +15,17 @@ class LoadDataForRegistrationUseCase @Inject constructor(
             val muscleGroupsAndExercises = _appDb.muscleGroupDao.getAllWithExercises().first()
 
             val muscleGroupNamesWithExercises: MutableMap<String, List<Exercise>> = mutableMapOf()
+            val toggledExercisesNumbers: MutableList<Int> = mutableListOf()
 
             muscleGroupsAndExercises.forEach {
                 muscleGroupNamesWithExercises[it.muscleGroup.name] = it.exercises
+                toggledExercisesNumbers.add(0)
             }
 
             val result = DataForRegistration(
                 workoutPlans = workoutPlans,
                 muscleGroupNamesWithExercises = muscleGroupNamesWithExercises,
+                toggledExercisesPerMuscleGroup = toggledExercisesNumbers,
             )
 
             return Result.success(result)

@@ -14,7 +14,6 @@ import com.example.trenifyapp.presentation.screens.AccountSelectionScreen
 import com.example.trenifyapp.presentation.screens.InitialUserDataScreen
 import com.example.trenifyapp.presentation.screens.InitialWorkoutPlansScreen
 import com.example.trenifyapp.presentation.screens.InitialExercisesScreen
-import com.example.trenifyapp.presentation.screens.InitialExercisesParamsScreen
 import com.example.trenifyapp.presentation.screens.UserMainScreen
 import com.example.trenifyapp.presentation.viewmodels.AccountSelectionViewModel
 import com.example.trenifyapp.presentation.viewmodels.RegistrationViewModel
@@ -69,23 +68,11 @@ fun NavGraph(
 
                 InitialExercisesScreen(
                     viewModel = viewModel,
-                    navigateToSettingUpExercisesScreen = {
-                        navHostController.navigate(ScreenRoute.InitialSettingUpExercisesScreen.route)
-                    }
-                )
-            }
-
-            composable(ScreenRoute.InitialSettingUpExercisesScreen.route) {
-                val viewModel = it.sharedViewModel<RegistrationViewModel>(navHostController)
-
-                InitialExercisesParamsScreen (
-                    viewModel = viewModel,
-                    navigateToAccountsScreen = {
+                    toAccountsScreen = {
                         navHostController.navigate(ScreenRoute.AccountsScreen.route)
                     }
                 )
             }
-
         }
 
         composable(ScreenRoute.UserProfileScreen.route) { backStackEntry ->

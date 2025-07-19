@@ -50,7 +50,7 @@ fun InitialUserDataScreen(
 
         ValidatedTextField(
             value = state.userData.username,
-            onValueChanged = { viewModel.validateAndChangeUsername(it) },
+            onValueChanged = { viewModel.changeUsername(it) },
             label = stringResource(R.string.username_field),
             errorValue = state.fieldErrors.usernameError
         )

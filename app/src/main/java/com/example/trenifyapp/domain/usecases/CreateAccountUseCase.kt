@@ -3,9 +3,9 @@ package com.example.trenifyapp.domain.usecases
 import com.example.trenifyapp.data.AppDb
 import com.example.trenifyapp.data.entities.SelectedExercise
 import com.example.trenifyapp.data.entities.User
-import com.example.trenifyapp.domain.dataclasses.ExerciseWithCharacteristics
 import com.example.trenifyapp.domain.enums.Gender
 import com.example.trenifyapp.domain.exceptions.CreateAccountException
+import com.example.trenifyapp.presentation.dataclasses.ToggledExerciseInfo
 import javax.inject.Inject
 
 class CreateAccountUseCase @Inject constructor(
@@ -17,7 +17,7 @@ class CreateAccountUseCase @Inject constructor(
         age: Int,
         weight: Float,
         gender: Gender,
-        exercisesWithCharacteristics: List<ExerciseWithCharacteristics>
+        toggledExercises: List<ToggledExerciseInfo>
     ): Result<Long> {
         try {
             val phaseOfCycleId = _appDb.workoutPlanDao.getPhasesIds(workoutId)
@@ -35,13 +35,13 @@ class CreateAccountUseCase @Inject constructor(
             )
             val userId = _appDb.userDao.create(user)
 
-            exercisesWithCharacteristics.forEach { exerciseWithCharacteristics ->
+            toggledExercises.forEach { exercise ->
                 val selectedExercise = SelectedExercise(
                     selectedExerciseId = null,
-                    currentWorkingWeight = weight,
-                    setsNumber = exerciseWithCharacteristics.characteristics.sets,
-                    repeatsNumber = exerciseWithCharacteristics.characteristics.reps,
-                    exerciseOwnerId = exerciseWithCharacteristics.exercise.exerciseId!!,
+                    currentWorkingWeight = 10f,
+                    setsNumber = 3,
+                    repeatsNumber = 0,
+                    exerciseOwnerId = exercise.id,
                     userOwnerId = userId.toInt()
                 )
 

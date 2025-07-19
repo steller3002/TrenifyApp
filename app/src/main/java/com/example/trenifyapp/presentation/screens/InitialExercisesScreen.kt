@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.trenifyapp.presentation.components.ConditionButton
 import com.example.trenifyapp.presentation.components.ExerciseItem
 import com.example.trenifyapp.presentation.components.ScreenTitle
 import com.example.trenifyapp.presentation.components.TrenifyTitle
@@ -19,7 +20,7 @@ import com.example.trenifyapp.presentation.viewmodels.RegistrationViewModel
 @Composable
 fun InitialExercisesScreen(
     viewModel: RegistrationViewModel,
-    navigateToSettingUpExercisesScreen: () -> Unit
+    toAccountsScreen: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -76,7 +77,8 @@ fun InitialExercisesScreen(
                         items(exercises.sortedBy { it.name }) { exercise ->
                             val toggledExerciseInfo = ToggledExerciseInfo(
                                 id = exercise.exerciseId!!,
-                                name = exercise.name
+                                name = exercise.name,
+                                muscleGroupId = exercise.muscleGroupOwnerId
                             )
 
                             ExerciseItem(
@@ -92,17 +94,17 @@ fun InitialExercisesScreen(
             }
         }
 
-//        ConditionButton(
-//            onClick = {
-//                navigateToSettingUpExercisesScreen()
-//            },
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(bottom = 30.dp)
-//                .align(Alignment.BottomCenter),
-//            enabledCondition = state.fieldsErrorState.numberOfExercises == "" &&
-//                state.toggledExerciseIds.isNotEmpty(),
-//            text = "Продолжить"
-//        )
+        ConditionButton(
+            onClick = {
+                viewModel.createAccount()
+                toAccountsScreen()
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 30.dp)
+                .align(Alignment.BottomCenter),
+            enabledCondition = state.exercisesNumberIsValid,
+            text = "Создать аккаунт"
+        )
     }
 }

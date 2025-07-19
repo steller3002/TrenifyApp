@@ -1,6 +1,6 @@
 package com.example.trenifyapp.domain.usecases
 
-import com.example.trenifyapp.domain.exceptions.OutOfBoundsException
+import com.example.trenifyapp.domain.exceptions.ValueOutOfBoundsException
 import com.example.trenifyapp.domain.exceptions.InvalidFieldValueException
 import com.example.trenifyapp.domain.exceptions.RequiredFieldException
 import javax.inject.Inject
@@ -18,7 +18,7 @@ class ValidateWeightUseCase @Inject constructor() {
             val weightAsFloat = weightAsString.toFloat()
 
             if (weightAsFloat !in _minWeight.._maxWeight) {
-                return Result.failure(OutOfBoundsException(_minWeight, _maxWeight))
+                return Result.failure(ValueOutOfBoundsException(_minWeight, _maxWeight))
             }
 
             return Result.success(Unit)

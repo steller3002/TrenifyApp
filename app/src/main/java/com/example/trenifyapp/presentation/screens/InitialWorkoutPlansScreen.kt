@@ -3,12 +3,12 @@ package com.example.trenifyapp.presentation.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.trenifyapp.presentation.components.DefaultButton
-import com.example.trenifyapp.presentation.components.ErrorMessage
 import com.example.trenifyapp.presentation.components.ScreenTitle
 import com.example.trenifyapp.presentation.components.TrenifyTitle
 import com.example.trenifyapp.presentation.components.WorkoutPlanItem
@@ -40,8 +40,11 @@ fun InitialWorkoutPlansScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            if (state.isLoading) {
+                Text("Загрузка данных...")
+            }
             if (state.dataForRegistration == null) {
-                ErrorMessage()
+                Text("Возникла ошибка :(")
             }
             else {
                 LazyColumn(
